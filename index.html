@@ -10,7 +10,6 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
-      overflow: hidden;
       overscroll-behavior: none;
       touch-action: none;
       -webkit-user-select: none;
@@ -24,6 +23,10 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      overflow-y: auto;   /* allow scroll if needed */
+      overflow-x: hidden;
+      min-height: 100vh;
+      padding: 8px 0;
     }
     canvas { display: block; margin: 0 auto; }
 
@@ -578,12 +581,26 @@ let canvasW = 0;
 let canvasH = 0;
 
 function resizeCanvasToFit() {
-  const margin = 20;
+  const margin = 12;
   const maxCanvas = 600;
   const vw = windowWidth;
   const vh = windowHeight;
-  let size = Math.min(vw, vh) - margin * 2;
+
+  // Detect if D-pad is visible (mobile/touch)
+  const dpad = document.getElementById('dpad');
+  const dpadVisible = dpad && window.getComputedStyle(dpad).display !== 'none';
+
+  let availW = vw - margin * 2;
+  let availH = vh - margin * 2;
+
+  if (dpadVisible) {
+    // Reserve space for topbar (~30px) + gap (8px) + dpad (~190px) + gap (8px)
+    availH -= 240;
+  }
+
+  let size = Math.min(availW, availH);
   size = Math.min(size, maxCanvas);
+  size = Math.max(size, 200); // min playable size
   cellSize = Math.floor(size / COLS);
   canvasW = cellSize * COLS;
   canvasH = cellSize * ROWS;
