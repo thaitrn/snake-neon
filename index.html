@@ -10,138 +10,58 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
-      overscroll-behavior: none;
-      touch-action: none;
-      -webkit-user-select: none;
-      user-select: none;
-      background: #0a0a0f;
-      height: 100%;
+      overscroll-behavior: none; touch-action: none;
+      -webkit-user-select: none; user-select: none;
+      background: #0a0a0f; height: 100%;
     }
     body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      overflow-y: auto;   /* allow scroll if needed */
-      overflow-x: hidden;
-      min-height: 100vh;
-      padding: 8px 0;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 8px;
+      overflow-y: auto; overflow-x: hidden;
+      min-height: 100vh; padding: 8px 0;
     }
     canvas { display: block; margin: 0 auto; touch-action: none; }
-
     #topbar {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      font-family: monospace;
-      color: #00d9ff;
-      font-size: 13px;
-      min-height: 24px;
+      display: flex; gap: 12px; align-items: center;
+      font-family: monospace; color: #00d9ff; font-size: 13px; min-height: 24px;
     }
-    #pauseBtn {
-      background: #12121f;
-      border: 2px solid #1a1a2e;
-      border-radius: 8px;
-      color: #00d9ff;
-      padding: 4px 14px;
-      font-size: 13px;
-      font-family: monospace;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+    #pauseBtn, #startBtn, .dpad-btn {
+      background: #12121f; border: 2px solid #1a1a2e; color: #00d9ff;
+      font-family: monospace; cursor: pointer;
+      -webkit-tap-highlight-color: transparent; transition: box-shadow 0.1s;
     }
+    #pauseBtn { border-radius: 8px; padding: 4px 14px; font-size: 13px; touch-action: manipulation; }
     #pauseBtn:active { box-shadow: 0 0 12px #00d9ff; }
+    .gamepad-hidden, .start-hidden { display: none !important; }
 
-    /* ============================================================
-       MOBILE CONTROLS V2 — Portrait Tap Zone + Landscape Gamepad
-       ============================================================ */
-    /* Hidden by default (portrait / desktop) */
-    .gamepad-hidden { display: none !important; }
-    .start-hidden { display: none !important; }
-
-    /* Landscape body layout: 3 columns — D-pad | canvas | start */
+    /* Landscape: 3-column grid — D-pad | canvas | start */
     body.landscape {
-      flex-direction: row;
-      align-items: stretch;
-      justify-content: space-between;
-      padding: 0;
-      gap: 0;
-      min-height: 100vh;
-    }
-    /* Topbar spans full width above the 3-column row in landscape.
-       We keep it in flex flow but it's a thin row. To get 3 columns
-       underneath, we wrap via CSS grid on body. */
-    body.landscape {
-      display: grid;
+      display: grid; flex-direction: row; align-items: stretch;
+      justify-content: space-between; padding: 4px; gap: 4px; min-height: 100vh;
       grid-template-columns: 30% 1fr 24%;
       grid-template-rows: auto 1fr;
-      grid-template-areas:
-        "topbar topbar topbar"
-        "gamepad canvas start";
-      gap: 4px;
-      padding: 4px;
+      grid-template-areas: "topbar topbar topbar" "gamepad canvas start";
     }
-    body.landscape #topbar    { grid-area: topbar; }
-    body.landscape #gamepad   { grid-area: gamepad; display: flex !important;
-                                  align-items: center; justify-content: center; }
-    body.landscape canvas     { grid-area: canvas; align-self: center;
-                                  justify-self: center; margin: 0 !important; }
-    body.landscape #startBtn  { grid-area: start; display: flex !important;
-                                  align-items: center; justify-content: center; }
+    body.landscape #topbar   { grid-area: topbar; }
+    body.landscape #gamepad  { grid-area: gamepad; display: flex !important; align-items: center; justify-content: center; }
+    body.landscape canvas    { grid-area: canvas; align-self: center; justify-self: center; margin: 0 !important; }
+    body.landscape #startBtn { grid-area: start; display: flex !important; align-items: center; justify-content: center; }
 
-    /* D-pad — cross layout 56x56px buttons, 4px gap */
+    /* D-pad — cross layout */
     #dpad {
-      display: grid;
-      grid-template-columns: 56px 56px 56px;
-      grid-template-rows: 56px 56px 56px;
-      gap: 4px;
-      /* Cross shape: center cell empty, buttons at N/E/S/W */
-      grid-template-areas:
-        ". up ."
-        "left . right"
-        ". down .";
+      display: grid; grid-template-columns: 56px 56px 56px; grid-template-rows: 56px 56px 56px; gap: 4px;
+      grid-template-areas: ". up ." "left . right" ". down .";
     }
-    .dpad-up    { grid-area: up; }
-    .dpad-left  { grid-area: left; }
-    .dpad-right { grid-area: right; }
-    .dpad-down  { grid-area: down; }
+    .dpad-up { grid-area: up; } .dpad-left { grid-area: left; }
+    .dpad-right { grid-area: right; } .dpad-down { grid-area: down; }
     .dpad-btn {
-      width: 56px; height: 56px;
-      background: #12121f;
-      border: 2px solid #1a1a2e;
-      border-radius: 10px;
-      color: #00ff88;
-      font-size: 22px;
-      font-family: monospace;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: none;
+      width: 56px; height: 56px; border-radius: 10px; color: #00ff88;
+      font-size: 22px; touch-action: none;
       display: flex; align-items: center; justify-content: center;
-      transition: box-shadow 0.1s;
     }
-    .dpad-btn:active, .dpad-btn.pressed {
-      box-shadow: 0 0 12px #00ff88;
-      border-color: #00ff88;
-    }
-
-    /* Start/Pause button — round 72px, right column */
-    #startBtn {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      background: #12121f;
-      border: 2px solid #1a1a2e;
-      color: #00d9ff;
-      font-size: 28px;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: none;
-      transition: box-shadow 0.1s;
-    }
-    #startBtn:active, #startBtn.pressed {
-      box-shadow: 0 0 16px #00d9ff;
-      border-color: #00d9ff;
-    }
+    .dpad-btn:active, .dpad-btn.pressed { box-shadow: 0 0 12px #00ff88; border-color: #00ff88; }
+    #startBtn { width: 72px; height: 72px; border-radius: 50%; font-size: 28px; touch-action: none; }
+    #startBtn:active, #startBtn.pressed { box-shadow: 0 0 16px #00d9ff; border-color: #00d9ff; }
   </style>
 </head>
 <body>
@@ -161,85 +81,40 @@
 <!-- Landscape start/pause button: right column -->
 <button id="startBtn" class="start-hidden" aria-label="Start/Pause">⏸</button>
 <script>
-// ============================================================
-// SNAKE NEON — P0 MVP
-// Based on docs/architecture.md spec
-// ============================================================
+// SNAKE NEON — P0 MVP (docs/architecture.md spec)
 
-// ============================================================
 // CONFIG — Constants (§13.1)
-// ============================================================
-const INITIAL_COLS = 17;
-const INITIAL_ROWS = 17;
-const MAX_COLS = 41;
-const MAX_ROWS = 41;
+const INITIAL_COLS = 17, INITIAL_ROWS = 17;
+const MAX_COLS = 41, MAX_ROWS = 41;
 const EXPAND_PER_FOOD = 1;
-
-// COLS/ROWS are mutable — Territory Expansion grows the grid each food (§3).
-let COLS = INITIAL_COLS;
-let ROWS = INITIAL_ROWS;
+let COLS = INITIAL_COLS, ROWS = INITIAL_ROWS;  // mutable — Territory Expansion grows grid (§3)
 const START_LENGTH = 3;
-const START_X = Math.floor(INITIAL_COLS / 2);
-const START_Y = Math.floor(INITIAL_ROWS / 2);
-
-const INITIAL_TICK   = 150;
-const MIN_TICK       = 60;
-const STEP_REDUCTION = 3;
-
+const START_X = Math.floor(INITIAL_COLS / 2), START_Y = Math.floor(INITIAL_ROWS / 2);
+const INITIAL_TICK = 150, MIN_TICK = 60, STEP_REDUCTION = 3;
 const BASE_POINTS = 10;
 
-// Joystick direction threshold (responsive — recalculated from cellSize at render time)
-const JOYSTICK_THRESHOLD_RATIO = 0.4;  // threshold = cellSize * 0.4
-const JOYSTICK_BASE_RATIO = 1.5;       // base radius = cellSize * 1.5
-const JOYSTICK_THUMB_RATIO = 0.8;      // thumb radius = cellSize * 0.8
+// Floating Virtual Joystick — swipe-fallback only (portrait). V2 primary control is tap zone.
+// Landscape uses D-pad buttons. Ratios are relative to cellSize (responsive).
+const JOYSTICK_THRESHOLD_RATIO = 0.4, JOYSTICK_BASE_RATIO = 1.5, JOYSTICK_THUMB_RATIO = 0.8;
+let joystick = { active: false, originX: 0, originY: 0, thumbX: 0, thumbY: 0 };
 
-// Floating Virtual Joystick state (Option A — mobile-ux-redesign.md §4)
-// V2: joystick RETAINED as swipe-fallback only (portrait). Primary portrait
-// control is now the 4-triangle tap zone. Landscape uses D-pad buttons.
-let joystick = {
-  active: false,
-  originX: 0, originY: 0,   // touch start point
-  thumbX: 0, thumbY: 0      // current thumb position (clamped to base)
-};
-
-// Mobile Controls V2 orientation state
 let currentOrientation = 'portrait';  // 'portrait' | 'landscape'
 
-const MAX_PARTICLES = 50;
-const PARTICLE_LIFE = 300;
+const MAX_PARTICLES = 50, PARTICLE_LIFE = 300;
+const HS_KEY = 'snake_neon_highscore', MUTE_KEY = 'snake_neon_muted';
 
-const HS_KEY   = 'snake_neon_highscore';
-const MUTE_KEY = 'snake_neon_muted';
-
-// ============================================================
 // PALETTE — Neon Aesthetic (§10.1)
-// ============================================================
 const PALETTE = {
-  bg:        '#0a0a0f',
-  snake:     '#00ff88',
-  snakeHead: '#33ffaa',
-  food:      '#ff006e',
-  grid:      '#1a1a2e',
-  scoreText: '#00d9ff',
-  accent:    '#ffee00',
-  white:     '#ffffff',
-  spike:     '#ff2244'
+  bg: '#0a0a0f', snake: '#00ff88', snakeHead: '#33ffaa', food: '#ff006e',
+  grid: '#1a1a2e', scoreText: '#00d9ff', accent: '#ffee00', white: '#ffffff', spike: '#ff2244'
 };
 
-// ============================================================
 // STATE MACHINE (§3.3)
-// ============================================================
-const STATES = {
-  MENU:      'MENU',
-  PLAYING:   'PLAYING',
-  PAUSED:    'PAUSED',
-  GAME_OVER: 'GAME_OVER'
-};
-
+const STATES = { MENU: 'MENU', PLAYING: 'PLAYING', PAUSED: 'PAUSED', GAME_OVER: 'GAME_OVER' };
 const TRANSITIONS = {
-  MENU:      { PLAYING: true },
-  PLAYING:   { PAUSED: true, GAME_OVER: true },
-  PAUSED:    { PLAYING: true },
+  MENU: { PLAYING: true },
+  PLAYING: { PAUSED: true, GAME_OVER: true },
+  PAUSED: { PLAYING: true },
   GAME_OVER: { MENU: true, PLAYING: true }
 };
 
@@ -247,15 +122,10 @@ let currentState = STATES.MENU;
 
 function transitionTo(newState) {
   if (!TRANSITIONS[currentState] || !TRANSITIONS[currentState][newState]) return;
-  onExit(currentState);
   currentState = newState;
   onEnter(newState);
-  if (newState === STATES.GAME_OVER) {
-    playDeathSFX();
-  }
+  if (newState === STATES.GAME_OVER) playDeathSFX();
 }
-
-function onExit(state) {}
 
 function onEnter(state) {
   if (state === STATES.PLAYING) {
@@ -264,65 +134,43 @@ function onEnter(state) {
   }
 }
 
-// ============================================================
 // DIRECTIONS (§5.2)
-// ============================================================
 const DIR = {
-  UP:    { x:  0, y: -1 },
-  DOWN:  { x:  0, y:  1 },
-  LEFT:  { x: -1, y:  0 },
-  RIGHT: { x:  1, y:  0 }
+  UP: { x: 0, y: -1 }, DOWN: { x: 0, y: 1 }, LEFT: { x: -1, y: 0 }, RIGHT: { x: 1, y: 0 }
 };
 
-// ============================================================
 // SNAKE
-// ============================================================
 let snake;
 
 function initSnake() {
-  snake = {
-    body: [],
-    direction:     DIR.RIGHT,
-    nextDirection: null,
-    prevBody: []  // for smooth interpolation
-  };
+  snake = { body: [], direction: DIR.RIGHT, nextDirection: null, prevBody: [] };
   for (let i = 0; i < START_LENGTH; i++) {
-    snake.body.push({ x: START_X - i, y: START_Y });
-    snake.prevBody.push({ x: START_X - i, y: START_Y });
+    const seg = { x: START_X - i, y: START_Y };
+    snake.body.push(seg);
+    snake.prevBody.push({ x: seg.x, y: seg.y });
   }
 }
 
 function setDirection(newDir) {
   const compareDir = snake.nextDirection || snake.direction;
-  if (newDir.x === -compareDir.x && newDir.y === -compareDir.y) return;
-  if (newDir.x === compareDir.x && newDir.y === compareDir.y) return;
+  if (newDir.x === -compareDir.x && newDir.y === -compareDir.y) return;  // no 180° reversal
+  if (newDir.x === compareDir.x && newDir.y === compareDir.y) return;    // no-op
   snake.nextDirection = newDir;
 }
 
-// ============================================================
 // FOOD
-// ============================================================
 let food = null;
-
 function spawnFood() {
   const occupied = new Set(snake.body.map(s => s.x + ',' + s.y));
   const empty = [];
-  for (let y = 0; y < ROWS; y++) {
-    for (let x = 0; x < COLS; x++) {
+  for (let y = 0; y < ROWS; y++)
+    for (let x = 0; x < COLS; x++)
       if (!occupied.has(x + ',' + y)) empty.push({ x, y });
-    }
-  }
-  if (empty.length === 0) {
-    transitionTo(STATES.GAME_OVER);
-    triggerDeathEffects();
-    return;
-  }
+  if (empty.length === 0) { transitionTo(STATES.GAME_OVER); triggerDeathEffects(); return; }
   food = empty[Math.floor(Math.random() * empty.length)];
 }
 
-// ============================================================
 // COLLISION (§4.3)
-// ============================================================
 function checkCollision(newHead, willEat) {
   const { x, y } = newHead;
   if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return 'WALL';
@@ -333,9 +181,7 @@ function checkCollision(newHead, willEat) {
   return null;
 }
 
-// ============================================================
 // GAME LOGIC — SNAKE TICK (§4.1)
-// ============================================================
 let score = 0;
 let foodsEaten = 0;
 let tickInterval = INITIAL_TICK;
@@ -398,11 +244,8 @@ function onEatFood(eatenPos) {
   }
 }
 
-// ============================================================
-// TERRITORY EXPANSION (spec §3.3 — center-expand)
-// Each food grows grid by +1 col / +1 row up to MAX_COLS/MAX_ROWS.
-// Snake + food shift to preserve their center-relative position.
-// ============================================================
+// TERRITORY EXPANSION (spec §3.3 — center-expand). Each food grows grid +1 col/+1 row
+// up to MAX. Snake + food shift to preserve center-relative position.
 function expandGrid() {
   const oldCols = COLS;
   const oldRows = ROWS;
@@ -435,9 +278,7 @@ function expandGrid() {
   }
 }
 
-// ============================================================
 // RESET
-// ============================================================
 function resetGame() {
   COLS = INITIAL_COLS;
   ROWS = INITIAL_ROWS;
@@ -455,9 +296,7 @@ function resetGame() {
   spawnFood();
 }
 
-// ============================================================
 // STORAGE (§4.6)
-// ============================================================
 const Storage = {
   getHighScore() {
     try {
@@ -476,9 +315,7 @@ const Storage = {
   }
 };
 
-// ============================================================
 // PARTICLE SYSTEM (§8.3)
-// ============================================================
 const particles = [];
 
 function initParticles() {
@@ -564,9 +401,7 @@ function updateParticles(dt) {
   }
 }
 
-// ============================================================
 // EFFECTS
-// ============================================================
 let screenFlash = 0;
 let shakeAmount = 0;
 let snakeFlashColor = null;
@@ -590,9 +425,7 @@ function applyScreenShake() {
   }
 }
 
-// ============================================================
 // AUDIO SYSTEM (§7)
-// ============================================================
 let audioReady = false;
 let muted = false;
 
@@ -604,74 +437,32 @@ function initAudio() {
       if (ctx.state !== 'running') userStartAudio();
     }
     audioReady = true;
-  } catch (e) {
-    audioReady = false;
-  }
+  } catch (e) { audioReady = false; }
 }
 
-function playEatSFX() {
+// Shared chiptune blip: square osc + ADSR envelope, auto-stops after dur ms.
+function blip(freq, atk, dec, rel, amp, dur, freqSweep) {
   if (muted || !audioReady) return;
   try {
     const osc = new p5.Oscillator('square');
     const env = new p5.Envelope();
-    env.setADSR(0.005, 0.04, 0.0, 0.01);
-    env.setRange(0.15, 0);
-    osc.freq(800 + Math.min(foodsEaten * 30, 400));
+    env.setADSR(atk, dec, 0.0, rel);
+    env.setRange(amp, 0);
+    osc.freq(freq);
     osc.start();
-    env.play(osc, 0, 0.05);
-    setTimeout(() => { try { osc.stop(); } catch(e) {} }, 80);
+    if (freqSweep) osc.freq(freqSweep, dur / 1000 * 0.8);
+    env.play(osc, 0, dur / 1000);
+    setTimeout(() => { try { osc.stop(); } catch(e) {} }, dur + 50);
   } catch(e) {}
 }
 
-function playDeathSFX() {
-  if (muted || !audioReady) return;
-  try {
-    const osc = new p5.Oscillator('square');
-    const env = new p5.Envelope();
-    env.setADSR(0.01, 0.1, 0.0, 0.2);
-    env.setRange(0.15, 0);
-    osc.freq(400);
-    osc.start();
-    osc.freq(100, 0.3);
-    env.play(osc, 0, 0.35);
-    setTimeout(() => { try { osc.stop(); } catch(e) {} }, 400);
-  } catch(e) {}
-}
+const playEatSFX   = () => blip(800 + Math.min(foodsEaten * 30, 400), 0.005, 0.04, 0.01, 0.15, 80);
+const playDeathSFX = () => blip(400, 0.01, 0.1, 0.2, 0.15, 400, 100);
+const playMenuSFX  = () => { blip(523, 0.005, 0.06, 0.01, 0.1, 80); setTimeout(() => blip(784, 0.005, 0.06, 0.01, 0.1, 100), 60); };
 
-function playMenuSFX() {
-  if (muted || !audioReady) return;
-  try {
-    const osc = new p5.Oscillator('square');
-    const env = new p5.Envelope();
-    env.setADSR(0.005, 0.06, 0.0, 0.01);
-    env.setRange(0.1, 0);
-    osc.freq(523);
-    osc.start();
-    env.play(osc, 0, 0.08);
-    setTimeout(() => { try { osc.freq(784); } catch(e) {} }, 60);
-    setTimeout(() => { try { osc.stop(); } catch(e) {} }, 180);
-  } catch(e) {}
-}
-
-// Background music — chiptune loop
-const MELODY = [
-  { freq: 523, dur: 200 },  // C5
-  { freq: 659, dur: 200 },  // E5
-  { freq: 784, dur: 200 },  // G5
-  { freq: 1047, dur: 200 }, // C6
-  { freq: 784, dur: 200 },  // G5
-  { freq: 659, dur: 200 },  // E5
-  { freq: 587, dur: 200 },  // D5
-  { freq: 698, dur: 200 },  // F5
-  { freq: 880, dur: 200 },  // A5
-  { freq: 1175, dur: 200 }, // D6
-  { freq: 880, dur: 200 },  // A5
-  { freq: 698, dur: 200 },  // F5
-  { freq: 659, dur: 200 },  // E5
-  { freq: 523, dur: 200 },  // C5
-  { freq: 440, dur: 200 },  // A4
-  { freq: 523, dur: 400 },  // C5 (held)
-];
+// Background music — chiptune loop (C-E-G-C6-G-E-D-F-A-D6-A-F-E-C-A4-C)
+const MELODY = [523,659,784,1047,784,659,587,698,880,1175,880,698,659,523,440,523].map(f => ({ freq: f, dur: 200 }));
+MELODY[MELODY.length - 1].dur = 400;  // final C held
 
 let melodyIndex = 0;
 let nextNoteTime = 0;
@@ -696,20 +487,24 @@ function updateMusic() {
   }
 }
 
-// ============================================================
 // CANVAS SIZING (§9)
-// ============================================================
 let cellSize = 0;
 let canvasW = 0;
 let canvasH = 0;
 
-// ============================================================
 // MOBILE CONTROLS V2 — Orientation + Tap Zone
-// ============================================================
 
 // Detect orientation from viewport. Portrait when tall >= wide.
 // Square/desktop (~1:1) defaults to portrait (safe).
+// Desktop (no touch) is always treated as portrait so the gamepad/tap-zone
+// mobile controls stay hidden — desktop uses keyboard (spec §4.3, AC-8).
+function isTouchDevice() {
+  return ('ontouchstart' in window) ||
+         (navigator.maxTouchPoints > 0) ||
+         (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+}
 function getOrientation() {
+  if (!isTouchDevice()) return 'portrait';
   return windowWidth < windowHeight ? 'portrait' : 'landscape';
 }
 
@@ -772,9 +567,7 @@ function resizeCanvasToFit() {
   resizeCanvas(canvasW, canvasH);
 }
 
-// ============================================================
 // RENDER HELPERS (§10.2)
-// ============================================================
 function drawWithGlow(drawFn, glowColor, blurRadius) {
   drawingContext.save();
   drawingContext.shadowBlur = blurRadius;
@@ -783,9 +576,7 @@ function drawWithGlow(drawFn, glowColor, blurRadius) {
   drawingContext.restore();
 }
 
-// ============================================================
 // RENDER PIPELINE (§6)
-// ============================================================
 function renderBackground() {
   background(PALETTE.bg);
 }
@@ -804,58 +595,28 @@ function renderGrid() {
   pop();
 }
 
-// ============================================================
 // SPIKE WALLS (spec §2) — visual danger border on all 4 edges.
-// Triangular spikes point inward, neon red with glow. Visual only —
-// collision logic unchanged (§2.3 COL-01). Spike penetration ≤ 35%
-// cellSize into the playable area (§2.2 VIS-02). Shown in all states.
-// ============================================================
-const SPIKE_LENGTH_RATIO = 0.28;  // spike length / cellSize (into playable, under 35% cap to leave room for glow halo)
-const SPIKE_BASE_RATIO = 0.4;     // spike base width / cellSize
+// Triangular spikes point inward, neon red with glow. Visual only (collision unchanged).
+const SPIKE_LENGTH_RATIO = 0.28;  // spike length / cellSize (< 35% cap)
+const SPIKE_BASE_RATIO = 0.4;
 
 function renderSpikeWalls() {
   const len = cellSize * SPIKE_LENGTH_RATIO;
   const halfBase = (cellSize * SPIKE_BASE_RATIO) / 2;
-
   drawWithGlow(() => {
     fill(PALETTE.spike);
     noStroke();
-
-    // Top edge — spikes point DOWN (inward)
+    // Top (↓) + Bottom (↑)
     for (let x = 0; x < COLS; x++) {
       const cx = x * cellSize + cellSize / 2;
-      triangle(
-        cx - halfBase, 0,
-        cx + halfBase, 0,
-        cx, len
-      );
+      triangle(cx - halfBase, 0, cx + halfBase, 0, cx, len);
+      triangle(cx - halfBase, canvasH, cx + halfBase, canvasH, cx, canvasH - len);
     }
-    // Bottom edge — spikes point UP (inward)
-    for (let x = 0; x < COLS; x++) {
-      const cx = x * cellSize + cellSize / 2;
-      triangle(
-        cx - halfBase, canvasH,
-        cx + halfBase, canvasH,
-        cx, canvasH - len
-      );
-    }
-    // Left edge — spikes point RIGHT (inward)
+    // Left (→) + Right (←)
     for (let y = 0; y < ROWS; y++) {
       const cy = y * cellSize + cellSize / 2;
-      triangle(
-        0, cy - halfBase,
-        0, cy + halfBase,
-        len, cy
-      );
-    }
-    // Right edge — spikes point LEFT (inward)
-    for (let y = 0; y < ROWS; y++) {
-      const cy = y * cellSize + cellSize / 2;
-      triangle(
-        canvasW, cy - halfBase,
-        canvasW, cy + halfBase,
-        canvasW - len, cy
-      );
+      triangle(0, cy - halfBase, 0, cy + halfBase, len, cy);
+      triangle(canvasW, cy - halfBase, canvasW, cy + halfBase, canvasW - len, cy);
     }
   }, PALETTE.spike, Math.max(4, cellSize * 0.18));
 }
@@ -1099,9 +860,7 @@ function drawPulsingText(txt, y) {
   pop();
 }
 
-// ============================================================
 // p5.js LIFECYCLE
-// ============================================================
 function setup() {
   pixelDensity(1);
   createCanvas(600, 600);   // create first, then resize
@@ -1166,9 +925,7 @@ function draw() {
   renderStateOverlay();
 }
 
-// ============================================================
 // INPUT — Keyboard (§5.4)
-// ============================================================
 function keyPressed() {
   const k = keyCode;
 
@@ -1198,16 +955,26 @@ function keyPressed() {
   }
 }
 
-// ============================================================
 // INPUT — Touch / Mouse (§5.3)
-// Floating Virtual Joystick: touch anywhere on canvas → virtual
-// joystick appears at touch point → drag to steer. Tap (< threshold)
-// does nothing while PLAYING (no accidental pause). On MENU/GAME_OVER/
-// PAUSED overlays, tap still triggers handleAction (start/retry/resume).
-// ============================================================
+// Portrait: 4-triangle tap zone (instant direction on touchstart) + swipe-drag fallback.
+// On MENU/GAME_OVER/PAUSED overlays, tap triggers handleAction.
 let touchStart = null;
 
-function getTouchPos() {
+// Extract reliable touch coordinates from a DOM TouchEvent (p5 mouseX/mouseY unreliable on touchend).
+function getEventTouchPos(event) {
+  if (event) {
+    const changed = event.changedTouches;
+    const touchesList = event.touches;
+    let t = null;
+    if (changed && changed.length > 0) t = changed[0];
+    else if (touchesList && touchesList.length > 0) t = touchesList[0];
+    if (t) {
+      const rect = (typeof canvas !== 'undefined' && canvas && canvas.getBoundingClientRect)
+        ? canvas.getBoundingClientRect()
+        : { left: 0, top: 0 };
+      return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+    }
+  }
   if (touches.length > 0) return { x: touches[0].x, y: touches[0].y };
   if (mouseIsPressed) return { x: mouseX, y: mouseY };
   return { x: mouseX, y: mouseY };
@@ -1239,9 +1006,9 @@ function applyJoystickDrag(tx, ty) {
   }
 }
 
-function touchStarted() {
+function touchStarted(event) {
   initAudio();
-  const pos = getTouchPos();
+  const pos = getEventTouchPos(event);
 
   if (currentState !== STATES.PLAYING) {
     // MENU / GAME_OVER / PAUSED — tap = action (both modes)
@@ -1251,9 +1018,12 @@ function touchStarted() {
 
   // PLAYING
   if (currentOrientation === 'portrait') {
-    // Portrait: record origin; tap zone resolved on touchEnded.
-    // Also support swipe fallback (joystick visuals + drag direction).
+    // Portrait: record origin; resolve tap direction IMMEDIATELY on touchstart
+    // so the snake reacts the instant the finger lands (< 50ms). Drag/swipe is
+    // handled in touchMoved as a bonus (joystick visuals + drag direction).
     touchStart = { x: pos.x, y: pos.y };
+    const dir = getTapZone(pos.x, pos.y);
+    setDirection(dir);
     joystick.active = true;
     joystick.originX = pos.x;
     joystick.originY = pos.y;
@@ -1264,26 +1034,26 @@ function touchStarted() {
   return false;
 }
 
-function touchMoved() {
+function touchMoved(event) {
   // Portrait swipe fallback while PLAYING: drag > threshold → steer
   if (currentState === STATES.PLAYING && currentOrientation === 'portrait' && joystick.active) {
-    const pos = getTouchPos();
+    const pos = getEventTouchPos(event);
     applyJoystickDrag(pos.x, pos.y);
   }
   return false;
 }
 
-function touchEnded() {
-  if (currentState === STATES.PLAYING && currentOrientation === 'portrait' && touchStart) {
+function touchEnded(event) {
+  if (touchStart && currentState !== STATES.PLAYING) {
+    // MENU / GAME_OVER / PAUSED — near-zero drag = tap = action (start/retry/resume)
     const dx = mouseX - touchStart.x;
     const dy = mouseY - touchStart.y;
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 12) {
-      // Tap (no drag) → resolve 4-triangle tap zone
-      const dir = getTapZone(touchStart.x, touchStart.y);
-      setDirection(dir);
+      handleAction();
     }
-    // else: swipe already handled in touchMoved
   }
+  // PLAYING + portrait: direction already set on touchstart (instant tap).
+  // Drag steering handled in touchMoved.
   joystick.active = false;
   touchStart = null;
   return false;
@@ -1312,9 +1082,7 @@ function mouseReleased() {
   return false;
 }
 
-// ============================================================
 // ACTION HANDLER (tap/space/enter)
-// ============================================================
 function handleAction() {
   initAudio();
 
@@ -1335,9 +1103,7 @@ function handleAction() {
   }
 }
 
-// ============================================================
 // RESIZE
-// ============================================================
 function windowResized() {
   const newOrient = getOrientation();
   if (newOrient !== currentOrientation) {
@@ -1347,137 +1113,87 @@ function windowResized() {
   resizeCanvasToFit();
 }
 
-// ============================================================
-// HUD — Pause button + score display (mobile-ux-redesign.md §4)
-// Pause is an HTML button in topbar, NOT a canvas tap.
-// ============================================================
+// HUD — Pause button + score display (mobile-ux-redesign.md §4). HTML button, not canvas tap.
+// Block pointer/mouse events from bubbling to p5's global canvas listeners.
+function blockBubbling(el) {
+  ['mousedown','mouseup','pointerdown','pointerup'].forEach(ev =>
+    el.addEventListener(ev, e => e.stopPropagation(), { passive: true }));
+}
+
 (function initHUD() {
   const pauseBtn = document.getElementById('pauseBtn');
   const scoreEl = document.getElementById('hud-score');
+  const PAUSE_LABELS = { GAME_OVER: '↻ RESTART', MENU: '▶ START', PLAYING: '⏸ PAUSE', PAUSED: '▶ RESUME' };
 
   function togglePause() {
     initAudio();
-    if (currentState === STATES.PLAYING) {
-      transitionTo(STATES.PAUSED);
-    } else if (currentState === STATES.PAUSED) {
-      transitionTo(STATES.PLAYING);
-    }
+    if (currentState === STATES.PLAYING) transitionTo(STATES.PAUSED);
+    else if (currentState === STATES.PAUSED) transitionTo(STATES.PLAYING);
   }
 
   if (pauseBtn) {
-    // Dedupe touchstart + synthetic click (classic mobile double-fire):
-    // when touchstart handles the interaction, suppress the click that follows.
     let lastTouchHandled = 0;
-
     const handleBtn = () => {
-      if (currentState === STATES.MENU || currentState === STATES.GAME_OVER) {
-        handleAction();
-      } else {
-        togglePause();
-      }
+      if (currentState === STATES.MENU || currentState === STATES.GAME_OVER) handleAction();
+      else togglePause();
     };
-
-    // Stop mouse/touch events from bubbling to p5's global listeners so
-    // the canvas mousePressed/mouseReleased never fire for button clicks.
-    ['mousedown', 'mouseup', 'pointerdown', 'pointerup'].forEach(evType => {
-      pauseBtn.addEventListener(evType, (e) => { e.stopPropagation(); }, { passive: true });
-    });
-
-    // touchstart with preventDefault + stopPropagation so the canvas
-    // never sees the touch (no joystick activation from pause button)
+    blockBubbling(pauseBtn);
     pauseBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       lastTouchHandled = Date.now();
       handleBtn();
     }, { passive: false });
     pauseBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      // Suppress the synthetic click fired right after touchstart
-      if (Date.now() - lastTouchHandled < 500) return;
+      if (Date.now() - lastTouchHandled < 500) return;  // suppress synthetic click after touch
       handleBtn();
     });
   }
 
-  // Update topbar score + pause label each frame
   function updateHUD() {
-    if (scoreEl) {
-      scoreEl.textContent = `SCORE ${score}  •  BEST ${highScore}`;
-    }
-    if (pauseBtn) {
-      if (currentState === STATES.GAME_OVER) {
-        pauseBtn.textContent = '↻ RESTART';
-      } else if (currentState === STATES.MENU) {
-        pauseBtn.textContent = '▶ START';
-      } else if (currentState === STATES.PLAYING) {
-        pauseBtn.textContent = '⏸ PAUSE';
-      } else if (currentState === STATES.PAUSED) {
-        pauseBtn.textContent = '▶ RESUME';
-      }
-    }
-    // Landscape Start button label
+    if (scoreEl) scoreEl.textContent = `SCORE ${score}  •  BEST ${highScore}`;
+    if (pauseBtn) pauseBtn.textContent = PAUSE_LABELS[currentState] || '';
     const startBtnEl = document.getElementById('startBtn');
-    if (startBtnEl) {
-      if (currentState === STATES.PLAYING) {
-        startBtnEl.textContent = '⏸';
-      } else {
-        startBtnEl.textContent = '▶';
-      }
-    }
+    if (startBtnEl) startBtnEl.textContent = currentState === STATES.PLAYING ? '⏸' : '▶';
     requestAnimationFrame(updateHUD);
   }
   updateHUD();
 })();
 
-// ============================================================
-// MOBILE CONTROLS V2 — D-pad + Start button (landscape)
-// Uses touchstart + preventDefault to avoid double-fire and 300ms
-// delay. stopPropagation keeps canvas touch handlers from firing.
-// ============================================================
+// MOBILE CONTROLS V2 — D-pad + Start button (landscape). touchstart+preventDefault
+// avoids double-fire/300ms delay; stopPropagation keeps canvas handlers from firing.
 (function initGamepad() {
   function btnPress(btn) {
     btn.classList.add('pressed');
     setTimeout(() => btn.classList.remove('pressed'), 120);
   }
 
-  // D-pad buttons
   document.querySelectorAll('.dpad-btn').forEach(btn => {
-    // Block all pointer/mouse events from bubbling to canvas
-    ['mousedown', 'mouseup', 'pointerdown', 'pointerup'].forEach(evType => {
-      btn.addEventListener(evType, (e) => { e.stopPropagation(); }, { passive: true });
-    });
+    blockBubbling(btn);
     btn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       initAudio();
       btnPress(btn);
       const dir = DIR[btn.dataset.dir];
       if (dir) setDirection(dir);
     }, { passive: false });
-    // Suppress synthetic click after touchstart (no double-fire)
-    btn.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); });
+    btn.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); });  // suppress synthetic click
   });
 
-  // Start/Pause button
   const startBtn = document.getElementById('startBtn');
   if (startBtn) {
-    ['mousedown', 'mouseup', 'pointerdown', 'pointerup'].forEach(evType => {
-      startBtn.addEventListener(evType, (e) => { e.stopPropagation(); }, { passive: true });
-    });
+    blockBubbling(startBtn);
     startBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       initAudio();
       btnPress(startBtn);
-      // Start button acts as primary action in landscape
-      handleAction();
+      handleAction();  // Start button = primary action in landscape
     }, { passive: false });
     startBtn.addEventListener('click', (e) => { e.stopPropagation(); e.preventDefault(); });
   }
 })();
 
-// Start p5 instance (script runs after p5.js loads, so auto-init already missed)
-new p5();
+new p5();  // Start p5 instance (script runs after p5.js loads, auto-init missed)
 </script>
 </body>
 </html>
