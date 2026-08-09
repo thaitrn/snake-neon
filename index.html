@@ -20,13 +20,91 @@
     }
     body {
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 8px;
     }
     canvas { display: block; margin: 0 auto; }
+
+    /* ===== Mobile D-Pad ===== */
+    #dpad {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-template-rows: repeat(3, 60px);
+      gap: 4px;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .dpad-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #12121f;
+      border: 2px solid #1a1a2e;
+      border-radius: 12px;
+      color: #00ff88;
+      font-size: 28px;
+      font-family: monospace, sans-serif;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.05s, box-shadow 0.05s;
+    }
+    .dpad-btn:active, .dpad-btn.pressed {
+      background: #00ff88;
+      color: #0a0a0f;
+      box-shadow: 0 0 20px #00ff88, inset 0 0 10px rgba(0,255,136,0.3);
+    }
+    .dpad-up    { grid-column: 2; grid-row: 1; }
+    .dpad-left  { grid-column: 1; grid-row: 2; }
+    .dpad-right { grid-column: 3; grid-row: 2; }
+    .dpad-down  { grid-column: 2; grid-row: 3; }
+    .dpad-center {
+      grid-column: 2; grid-row: 2;
+      background: #12121f;
+      border: 2px solid #1a1a2e;
+      border-radius: 12px;
+    }
+    #topbar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-family: monospace;
+      color: #00d9ff;
+      font-size: 13px;
+      min-height: 24px;
+    }
+    #pauseBtn {
+      background: #12121f;
+      border: 2px solid #1a1a2e;
+      border-radius: 8px;
+      color: #00d9ff;
+      padding: 4px 14px;
+      font-size: 13px;
+      font-family: monospace;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #pauseBtn:active { box-shadow: 0 0 12px #00d9ff; }
+    /* Hide D-pad on desktop (mouse devices) */
+    @media (hover: hover) and (pointer: fine) {
+      #dpad { display: none; }
+    }
   </style>
 </head>
 <body>
+<div id="topbar">
+  <span id="hud-score"></span>
+  <button id="pauseBtn">⏸ PAUSE</button>
+</div>
+<div id="dpad">
+  <button class="dpad-btn dpad-up"    data-dir="UP">▲</button>
+  <button class="dpad-btn dpad-left"  data-dir="LEFT">◀</button>
+  <div class="dpad-center"></div>
+  <button class="dpad-btn dpad-right" data-dir="RIGHT">▶</button>
+  <button class="dpad-btn dpad-down"  data-dir="DOWN">▼</button>
+</div>
 <script>
 // ============================================================
 // SNAKE NEON — P0 MVP
@@ -955,6 +1033,88 @@ function handleAction() {
 function windowResized() {
   resizeCanvasToFit();
 }
+
+// ============================================================
+// D-PAD — Mobile touch controls (UX fix: no more continuous swipe)
+// ============================================================
+(function initDPad() {
+  const pad = document.getElementById('dpad');
+  const pauseBtn = document.getElementById('pauseBtn');
+  if (!pad) return;
+
+  const dirMap = { UP: DIR.UP, DOWN: DIR.DOWN, LEFT: DIR.LEFT, RIGHT: DIR.RIGHT };
+
+  function handleDir(dirName) {
+    const d = dirMap[dirName];
+    if (d) setDirection(d);
+  }
+
+  // Touch events — 1 tap per direction change, no drag needed
+  pad.querySelectorAll('.dpad-btn').forEach(btn => {
+    const dirName = btn.dataset.dir;
+    if (!dirName) return;
+
+    const press = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      btn.classList.add('pressed');
+      handleDir(dirName);
+    };
+    const release = () => btn.classList.remove('pressed');
+
+    btn.addEventListener('touchstart', press, { passive: false });
+    btn.addEventListener('touchend', release);
+    btn.addEventListener('mousedown', press);
+    btn.addEventListener('mouseup', release);
+    btn.addEventListener('mouseleave', release);
+  });
+
+  // Pause button
+  if (pauseBtn) {
+    pauseBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      initAudio();
+      if (currentState === STATES.PLAYING) {
+        transitionTo(STATES.PAUSED);
+        pauseBtn.textContent = '▶ RESUME';
+      } else if (currentState === STATES.PAUSED) {
+        transitionTo(STATES.PLAYING);
+        pauseBtn.textContent = '⏸ PAUSE';
+      } else if (currentState === STATES.MENU || currentState === STATES.GAME_OVER) {
+        handleAction();
+        pauseBtn.textContent = '⏸ PAUSE';
+      }
+    }, { passive: false });
+    pauseBtn.addEventListener('click', () => {
+      initAudio();
+      if (currentState === STATES.PLAYING) {
+        transitionTo(STATES.PAUSED);
+        pauseBtn.textContent = '▶ RESUME';
+      } else if (currentState === STATES.PAUSED) {
+        transitionTo(STATES.PLAYING);
+        pauseBtn.textContent = '⏸ PAUSE';
+      } else if (currentState === STATES.MENU || currentState === STATES.GAME_OVER) {
+        handleAction();
+        pauseBtn.textContent = '⏸ PAUSE';
+      }
+    });
+  }
+
+  // Update topbar score display each frame via p5 draw
+  const scoreEl = document.getElementById('hud-score');
+  if (scoreEl) {
+    const updateHUD = () => {
+      scoreEl.textContent = `SCORE ${score}  •  BEST ${highScore}`;
+      if (currentState === STATES.GAME_OVER) {
+        pauseBtn.textContent = '↻ RESTART';
+      } else if (currentState === STATES.MENU) {
+        pauseBtn.textContent = '▶ START';
+      }
+      requestAnimationFrame(updateHUD);
+    };
+    updateHUD();
+  }
+})();
 
 // Start p5 instance (script runs after p5.js loads, so auto-init already missed)
 new p5();
