@@ -1,0 +1,218 @@
+{
+  "generated_at": "2026-08-09T03:51:13.520Z",
+  "layerA": {
+    "total": 100,
+    "passed": 100,
+    "failed": 0
+  },
+  "layerB_sample": [
+    "001",
+    "014",
+    "025",
+    "038",
+    "049",
+    "052",
+    "063",
+    "076",
+    "087",
+    "100"
+  ],
+  "layerB": [
+    {
+      "id": "001",
+      "name": "Neon Green 13×13 Wall",
+      "mode": "wall",
+      "grid": 13,
+      "checks": {
+        "menuState": true,
+        "menuSnake": true,
+        "menuFood": true,
+        "startable": true,
+        "initialScore": true,
+        "canEat": true,
+        "wallCollisionGameOver": true
+      },
+      "errors": [],
+      "bodyLenAfterEat": 4,
+      "finalScore": 0,
+      "finalState": "GAME_OVER"
+    },
+    {
+      "id": "014",
+      "name": "Hot Pink 15×15 Wrap",
+      "mode": "wrap",
+      "grid": 15,
+      "checks": {
+        "menuState": true,
+        "menuSnake": true,
+        "menuFood": true,
+        "startable": true,
+        "initialScore": true,
+        "canEat": true,
+        "wrapSurvivedEdge": true,
+        "wrapNote": "state after=PLAYING"
+      },
+      "errors": [],
+      "bodyLenAfterEat": 4,
+      "finalScore": 0,
+      "finalState": "PLAYING"
+    },
+    {
+      "id": "025",
+      "name": "Electric Blue 17×17 Wall",
+      "mode": "wall",
+      "grid": 17,
+      "checks": {
+        "menuState": true,
+        "menuSnake": true,
+        "menuFood": true,
+        "startable": true,
+        "initialScore": true,
+        "canEat": true,
+        "wallCollisionGameOver": true
+      },
+      "errors": [],
+      "bodyLenAfterEat": 4,
+      "finalScore": 0,
+      "finalState": "GAME_OVER"
+    },
+    {
+      "id": "038",
+      "name": "Sunset Orange 19×19 Wrap",
+      "mode": "wrap",
+      "grid": 19,
+      "checks": {
+        "menuState": true,
+        "menuSnake": true,
+        "menuFood": true,
+        "startable": true,
+        "initialScore": true,
+        "canEat": true,
+        "wrapSurvivedEdge": true,
+        "wrapNote": "state after=PLAYING"
+      },
+      "errors": [],
+      "bodyLenAfterEat": 4,
+      "finalScore": 0,
+      "finalState": "PLAYING"
+    },
+    {
+      "id": "049",
+      "name": "Deep Purple 21×21 Wall",
+      "mode": "wall",
+      "grid": 21,
+      "checks": {
+        "menuState": true,
+        "menuSnake": true,
+        "menuFood": true,
+        "startable": true,
+        "initialScore": true,
+        "canEat": true,
+        "wallCollisionGameOver": true
+      },
+      "errors": [],
+      "bodyLenAfterEat": 4,
+      "finalScore": 0,
+      "finalState": "GAME_OVER"
+    },
+    {
+      "id": "052",
+      "name": "Ice White 13×13 Wrap",
+      "mode": "wrap",
+      "grid": 13,
+      "checks": {
+        "menuState": true,
+        "menuSnake": true,
+        "menuFood": true,
+        "startable": true,
+        "initialScore": true,
+        "canEat": true,
+        "wrapSurvivedEdge": true,
+        "wrapNote": "state after=PLAYING"
+      },
+      "errors": [],
+      "bodyLenAfterEat": 4,
+      "finalScore": 0,
+      "finalState": "PLAYING"
+    },
+    {
+      "id": "063",
+      "name": "Blood Red 15×15 Wall",
+      "mode": "wall",
+      "grid": 15,
+      "checks": {
+        "menuState": true,
+        "menuSnake": true,
+        "menuFood": true,
+        "startable": true,
+        "initialScore": true,
+        "canEat": true,
+        "wallCollisionGameOver": true
+      },
+      "errors": [],
+      "bodyLenAfterEat": 4,
+      "finalScore": 0,
+      "finalState": "GAME_OVER"
+    },
+    {
+      "id": "076",
+      "name": "Toxic Yellow 17×17 Wrap",
+      "mode": "wrap",
+      "grid": 17,
+      "checks": {
+        "menuState": true,
+        "menuSnake": true,
+        "menuFood": true,
+        "startable": true,
+        "initialScore": true,
+        "canEat": true,
+        "wrapSurvivedEdge": true,
+        "wrapNote": "state after=PLAYING"
+      },
+      "errors": [],
+      "bodyLenAfterEat": 4,
+      "finalScore": 0,
+      "finalState": "PLAYING"
+    },
+    {
+      "id": "087",
+      "name": "Matrix Green 19×19 Wall",
+      "mode": "wall",
+      "grid": 19,
+      "checks": {
+        "menuState": true,
+        "menuSnake": true,
+        "menuFood": true,
+        "startable": true,
+        "initialScore": true,
+        "canEat": true,
+        "wallCollisionGameOver": true
+      },
+      "errors": [],
+      "bodyLenAfterEat": 4,
+      "finalScore": 0,
+      "finalState": "GAME_OVER"
+    },
+    {
+      "id": "100",
+      "name": "Ocean Teal 21×21 Wrap",
+      "mode": "wrap",
+      "grid": 21,
+      "checks": {
+        "menuState": true,
+        "menuSnake": true,
+        "menuFood": true,
+        "startable": true,
+        "initialScore": true,
+        "canEat": true,
+        "wrapSurvivedEdge": true,
+        "wrapNote": "state after=PLAYING"
+      },
+      "errors": [],
+      "bodyLenAfterEat": 4,
+      "finalScore": 0,
+      "finalState": "PLAYING"
+    }
+  ],
+  "configIssues": []
+}

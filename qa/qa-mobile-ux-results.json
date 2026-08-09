@@ -1,0 +1,139 @@
+{
+  "url": "http://localhost:8765/index.html",
+  "startedAt": "2026-08-09T03:50:51.675Z",
+  "viewports": [
+    {
+      "name": "iPhone SE",
+      "w": 375,
+      "h": 667,
+      "checks": {
+        "canvasSize": "357x357",
+        "TC1_canvasFits": true,
+        "TC1_hudAboveCanvas": true,
+        "TC1_pauseBtnVisible": true,
+        "TC1_pauseBtnInTopbar": true,
+        "TC6_noHorizontalOverflow": true,
+        "TC6_buttonNotClipped": true,
+        "TC2_startWorks": true,
+        "TC2_joystickActivates": true,
+        "TC2_joystickHidesOnRelease": true,
+        "TC2_tapNoPause": true,
+        "TC2_dirMapping": {
+          "UP": true,
+          "LEFT": true,
+          "DOWN": true,
+          "RIGHT": true,
+          "REVERSE_BLOCKED": true,
+          "REVERSE_detail": "1,0→1,0"
+        },
+        "TC2_allDirectionsOk": true,
+        "TC2_180Rule": true
+      },
+      "screenshot": "/Users/thaitrn/Workspaces/work/snake-neon/screenshots/qa-iPhone-SE.png"
+    },
+    {
+      "name": "iPhone 12/13",
+      "w": 390,
+      "h": 844,
+      "checks": {
+        "canvasSize": "374x374",
+        "TC1_canvasFits": true,
+        "TC1_hudAboveCanvas": true,
+        "TC1_pauseBtnVisible": true,
+        "TC1_pauseBtnInTopbar": true,
+        "TC6_noHorizontalOverflow": true,
+        "TC6_buttonNotClipped": true,
+        "TC2_startWorks": true,
+        "TC2_joystickActivates": true,
+        "TC2_joystickHidesOnRelease": true,
+        "TC2_tapNoPause": true,
+        "TC2_dirMapping": {
+          "UP": true,
+          "LEFT": true,
+          "DOWN": true,
+          "RIGHT": true,
+          "REVERSE_BLOCKED": true,
+          "REVERSE_detail": "1,0→1,0"
+        },
+        "TC2_allDirectionsOk": true,
+        "TC2_180Rule": true
+      },
+      "screenshot": "/Users/thaitrn/Workspaces/work/snake-neon/screenshots/qa-iPhone-12-13.png"
+    },
+    {
+      "name": "Samsung A-series",
+      "w": 360,
+      "h": 800,
+      "checks": {
+        "canvasSize": "340x340",
+        "TC1_canvasFits": true,
+        "TC1_hudAboveCanvas": true,
+        "TC1_pauseBtnVisible": true,
+        "TC1_pauseBtnInTopbar": true,
+        "TC6_noHorizontalOverflow": true,
+        "TC6_buttonNotClipped": true,
+        "TC2_startWorks": true,
+        "TC2_joystickActivates": true,
+        "TC2_joystickHidesOnRelease": true,
+        "TC2_tapNoPause": true,
+        "TC2_dirMapping": {
+          "UP": true,
+          "LEFT": true,
+          "DOWN": true,
+          "RIGHT": true,
+          "REVERSE_BLOCKED": true,
+          "REVERSE_detail": "1,0→1,0"
+        },
+        "TC2_allDirectionsOk": true,
+        "TC2_180Rule": true
+      },
+      "screenshot": "/Users/thaitrn/Workspaces/work/snake-neon/screenshots/qa-Samsung-A-series.png"
+    }
+  ],
+  "bugs": [],
+  "summary": {
+    "verdict": "PASS",
+    "readyToShip": true,
+    "viewportsTested": 3,
+    "landscapeTested": 2,
+    "bugCount": 0,
+    "fps": 75
+  },
+  "gameplay": {
+    "checks": {
+      "initialScore0": true,
+      "initialBody3": true,
+      "foodPresent": true,
+      "canEat": true,
+      "scoreIncremented": true,
+      "bodyGrew": true,
+      "tickSpedUp": true,
+      "wallCollisionGameOver": true,
+      "finalState": "GAME_OVER"
+    }
+  },
+  "landscape": [
+    {
+      "name": "iPhone SE landscape",
+      "canvas": "306x306",
+      "square": true,
+      "noHorizontalOverflow": true,
+      "startsInLandscape": true,
+      "playableState": true
+    },
+    {
+      "name": "iPhone 12 landscape",
+      "canvas": "323x323",
+      "square": true,
+      "noHorizontalOverflow": true,
+      "startsInLandscape": true,
+      "playableState": true
+    }
+  ],
+  "performance": {
+    "fps": 75,
+    "frameCount": 151,
+    "elapsedMs": 2,
+    "meets60fps": true
+  }
+}

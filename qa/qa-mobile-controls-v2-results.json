@@ -1,0 +1,167 @@
+{
+  "url": "http://localhost:9876/index.html",
+  "startedAt": "2026-08-09T05:15:08.662Z",
+  "portrait": [
+    {
+      "name": "iPhone SE",
+      "w": 375,
+      "h": 667,
+      "checks": {
+        "AC6_orientPortrait": true,
+        "AC6_canvasSize": "357",
+        "AC6_canvasOk": true,
+        "AC7_topbarVisible": true,
+        "AC7_pauseVisible": true,
+        "AC7_gamepadHidden": true,
+        "AC7_startHidden": true,
+        "startWorks": true,
+        "AC1_tapUp": true,
+        "AC1_tapLeft": true,
+        "AC1_tapDown": true,
+        "AC1_tapRight": true,
+        "AC2_stillPlaying": true,
+        "AC1_reverseGuard": true
+      }
+    },
+    {
+      "name": "iPhone 14",
+      "w": 390,
+      "h": 844,
+      "checks": {
+        "AC6_orientPortrait": true,
+        "AC6_canvasSize": "374",
+        "AC6_canvasOk": true,
+        "AC7_topbarVisible": true,
+        "AC7_pauseVisible": true,
+        "AC7_gamepadHidden": true,
+        "AC7_startHidden": true,
+        "startWorks": true,
+        "AC1_tapUp": true,
+        "AC1_tapLeft": true,
+        "AC1_tapDown": true,
+        "AC1_tapRight": true,
+        "AC2_stillPlaying": true,
+        "AC1_reverseGuard": true
+      }
+    },
+    {
+      "name": "Samsung A",
+      "w": 360,
+      "h": 800,
+      "checks": {
+        "AC6_orientPortrait": true,
+        "AC6_canvasSize": "340",
+        "AC6_canvasOk": true,
+        "AC7_topbarVisible": true,
+        "AC7_pauseVisible": true,
+        "AC7_gamepadHidden": true,
+        "AC7_startHidden": true,
+        "startWorks": true,
+        "AC1_tapUp": true,
+        "AC1_tapLeft": true,
+        "AC1_tapDown": true,
+        "AC1_tapRight": true,
+        "AC2_stillPlaying": true,
+        "AC1_reverseGuard": true
+      }
+    }
+  ],
+  "landscape": [
+    {
+      "name": "iPhone SE landscape",
+      "w": 667,
+      "h": 375,
+      "checks": {
+        "AC3_orientLandscape": true,
+        "AC6_canvasSize": "272",
+        "AC6_canvasOk": false,
+        "AC3_bodyLandscape": true,
+        "AC3_gamepadVisible": true,
+        "AC3_startVisible": true,
+        "AC3_pauseHidden": true,
+        "AC3_dpadLeftOfCanvas": true,
+        "AC3_startRightOfCanvas": true,
+        "AC3_canvasNotCovered": true,
+        "AC3_dpadBtnSize": true,
+        "AC3_startBtnSize": true,
+        "AC7_pauseHidden": true,
+        "startWorks": false,
+        "AC4_dpadUp": false,
+        "AC4_dpadLeft": false,
+        "AC4_dpadDown": false,
+        "AC4_dpadRight": true,
+        "AC4_canvasDoesNothing": true,
+        "AC4_startPauses": false
+      }
+    },
+    {
+      "name": "iPhone 14 landscape",
+      "w": 844,
+      "h": 390,
+      "checks": {
+        "AC3_orientLandscape": true,
+        "AC6_canvasSize": "323",
+        "AC6_canvasOk": true,
+        "AC3_bodyLandscape": true,
+        "AC3_gamepadVisible": true,
+        "AC3_startVisible": true,
+        "AC3_pauseHidden": true,
+        "AC3_dpadLeftOfCanvas": true,
+        "AC3_startRightOfCanvas": true,
+        "AC3_canvasNotCovered": true,
+        "AC3_dpadBtnSize": true,
+        "AC3_startBtnSize": true,
+        "AC7_pauseHidden": true,
+        "startWorks": false,
+        "AC4_dpadUp": false,
+        "AC4_dpadLeft": false,
+        "AC4_dpadDown": false,
+        "AC4_dpadRight": true,
+        "AC4_canvasDoesNothing": true,
+        "AC4_startPauses": false
+      }
+    }
+  ],
+  "autoSwitch": {
+    "portraitToLandscape": {
+      "beforeOrient": "portrait",
+      "afterOrient": "landscape",
+      "orientSwitched": true,
+      "statePreserved": false,
+      "scorePreserved": true
+    },
+    "landscapeToPortrait": {
+      "afterOrient": "portrait",
+      "orientSwitched": true,
+      "statePreserved": false,
+      "scorePreserved": true
+    }
+  },
+  "desktop": {
+    "gamepadDisplay": "flex",
+    "startDisplay": "flex",
+    "spaceStarts": true,
+    "arrowUp": true,
+    "pPauses": true
+  },
+  "ac": {
+    "AC1_tapZone": true,
+    "AC2_noPauseOnTap": true,
+    "AC6_portraitCanvas": true,
+    "AC7_portraitHUD": true,
+    "AC3_gamepadLayout": true,
+    "AC4_dpadControls": false,
+    "AC6_landscapeCanvas": false,
+    "AC5_autoSwitch": false,
+    "AC8_desktop": true,
+    "AC9_noTouchConflict": false,
+    "AC10_v1Superseded": true
+  },
+  "bugs": [],
+  "summary": {
+    "totalAC": 10,
+    "passed": 7,
+    "failed": 3,
+    "bugs": 0
+  }
+}
