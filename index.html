@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Snake Neon</title>
+  <script>p5.disableFriendlyErrors = true;</script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.5/lib/p5.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.11.5/lib/addons/p5.sound.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      background: #0a0a0f;
+      height: 100%;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas { display: block; margin: 0 auto; }
+  </style>
+</head>
+<body>
+<script>
+// ============================================================
+// SNAKE NEON — P0 MVP
+// Based on docs/architecture.md spec
+// ============================================================
+
+// ============================================================
+// CONFIG — Constants (§13.1)
+// ============================================================
+const COLS = 17;
+const ROWS = 17;
+const START_LENGTH = 3;
+const START_X = Math.floor(COLS / 2);
+const START_Y = Math.floor(ROWS / 2);
+
+const INITIAL_TICK   = 150;
+const MIN_TICK       = 60;
+const STEP_REDUCTION = 3;
+
+const BASE_POINTS = 10;
+
+const SWIPE_THRESHOLD = 30;
+
+const MAX_PARTICLES = 50;
+const PARTICLE_LIFE = 300;
+
+const HS_KEY   = 'snake_neon_highscore';
+const MUTE_KEY = 'snake_neon_muted';
+
+// ============================================================
+// PALETTE — Neon Aesthetic (§10.1)
+// ============================================================
+const PALETTE = {
+  bg:        '#0a0a0f',
+  snake:     '#00ff88',
+  snakeHead: '#33ffaa',
+  food:      '#ff006e',
+  grid:      '#1a1a2e',
+  scoreText: '#00d9ff',
+  accent:    '#ffee00',
+  white:     '#ffffff'
+};
+
+// ============================================================
+// STATE MACHINE (§3.3)
+// ============================================================
+const STATES = {
+  MENU:      'MENU',
+  PLAYING:   'PLAYING',
+  PAUSED:    'PAUSED',
+  GAME_OVER: 'GAME_OVER'
+};
+
+const TRANSITIONS = {
+  MENU:      { PLAYING: true },
+  PLAYING:   { PAUSED: true, GAME_OVER: true },
+  PAUSED:    { PLAYING: true },
+  GAME_OVER: { MENU: true, PLAYING: true }
+};
+
+let currentState = STATES.MENU;
+
+function transitionTo(newState) {
+  if (!TRANSITIONS[currentState] || !TRANSITIONS[currentState][newState]) return;
+  onExit(currentState);
+  currentState = newState;
+  onEnter(newState);
+  if (newState === STATES.GAME_OVER) {
+    playDeathSFX();
+  }
+}
+
+function onExit(state) {}
+
+function onEnter(state) {
+  if (state === STATES.PLAYING) {
+    lastFrameTime = millis();
+    tickAccumulator = 0;
+  }
+}
+
+// ============================================================
+// DIRECTIONS (§5.2)
+// ============================================================
+const DIR = {
+  UP:    { x:  0, y: -1 },
+  DOWN:  { x:  0, y:  1 },
+  LEFT:  { x: -1, y:  0 },
+  RIGHT: { x:  1, y:  0 }
+};
+
+// ============================================================
+// SNAKE
+// ============================================================
+let snake;
+
+function initSnake() {
+  snake = {
+    body: [],
+    direction:     DIR.RIGHT,
+    nextDirection: null,
+    prevBody: []  // for smooth interpolation
+  };
+  for (let i = 0; i < START_LENGTH; i++) {
+    snake.body.push({ x: START_X - i, y: START_Y });
+    snake.prevBody.push({ x: START_X - i, y: START_Y });
+  }
+}
+
+function setDirection(newDir) {
+  const compareDir = snake.nextDirection || snake.direction;
+  if (newDir.x === -compareDir.x && newDir.y === -compareDir.y) return;
+  if (newDir.x === compareDir.x && newDir.y === compareDir.y) return;
+  snake.nextDirection = newDir;
+}
+
+// ============================================================
+// FOOD
+// ============================================================
+let food = null;
+
+function spawnFood() {
+  const occupied = new Set(snake.body.map(s => s.x + ',' + s.y));
+  const empty = [];
+  for (let y = 0; y < ROWS; y++) {
+    for (let x = 0; x < COLS; x++) {
+      if (!occupied.has(x + ',' + y)) empty.push({ x, y });
+    }
+  }
+  if (empty.length === 0) {
+    transitionTo(STATES.GAME_OVER);
+    triggerDeathEffects();
+    return;
+  }
+  food = empty[Math.floor(Math.random() * empty.length)];
+}
+
+// ============================================================
+// COLLISION (§4.3)
+// ============================================================
+function checkCollision(newHead, willEat) {
+  const { x, y } = newHead;
+  if (x < 0 || x >= COLS || y < 0 || y >= ROWS) return 'WALL';
+  const checkBody = willEat ? snake.body : snake.body.slice(0, -1);
+  for (let i = 0; i < checkBody.length; i++) {
+    if (checkBody[i].x === x && checkBody[i].y === y) return 'SELF';
+  }
+  return null;
+}
+
+// ============================================================
+// GAME LOGIC — SNAKE TICK (§4.1)
+// ============================================================
+let score = 0;
+let foodsEaten = 0;
+let tickInterval = INITIAL_TICK;
+let tickAccumulator = 0;
+let lastFrameTime = 0;
+let highScore = 0;
+
+function snakeTick() {
+  // Save prev positions for interpolation
+  snake.prevBody = snake.body.map(s => ({ x: s.x, y: s.y }));
+
+  if (snake.nextDirection) {
+    snake.direction = snake.nextDirection;
+    snake.nextDirection = null;
+  }
+
+  const head = snake.body[0];
+  const newHead = {
+    x: head.x + snake.direction.x,
+    y: head.y + snake.direction.y
+  };
+
+  const willEat = food && newHead.x === food.x && newHead.y === food.y;
+  const collision = checkCollision(newHead, willEat);
+
+  if (collision) {
+    triggerDeathEffects();
+    transitionTo(STATES.GAME_OVER);
+    return;
+  }
+
+  snake.body.unshift(newHead);
+
+  if (willEat) {
+    onEatFood(newHead);
+  } else {
+    snake.body.pop();
+  }
+}
+
+function onEatFood(eatenPos) {
+  score += BASE_POINTS;
+  foodsEaten++;
+  tickInterval = Math.max(MIN_TICK, INITIAL_TICK - foodsEaten * STEP_REDUCTION);
+  spawnEatParticles(eatenPos.x * cellSize + cellSize / 2, eatenPos.y * cellSize + cellSize / 2);
+  playEatSFX();
+  screenFlash = 1.0;
+  if (score > highScore) {
+    highScore = score;
+    Storage.setHighScore(highScore);
+  }
+  spawnFood();
+}
+
+// ============================================================
+// RESET
+// ============================================================
+function resetGame() {
+  initSnake();
+  score = 0;
+  foodsEaten = 0;
+  tickInterval = INITIAL_TICK;
+  tickAccumulator = 0;
+  screenFlash = 0;
+  shakeAmount = 0;
+  snakeFlashColor = null;
+  deathParticleTimer = 0;
+  clearParticles();
+  spawnFood();
+}
+
+// ============================================================
+// STORAGE (§4.6)
+// ============================================================
+const Storage = {
+  getHighScore() {
+    try {
+      const val = localStorage.getItem(HS_KEY);
+      return val ? parseInt(val, 10) || 0 : 0;
+    } catch (e) { return 0; }
+  },
+  setHighScore(s) {
+    try { localStorage.setItem(HS_KEY, String(s)); } catch (e) {}
+  },
+  getMute() {
+    try { return localStorage.getItem(MUTE_KEY) === 'true'; } catch (e) { return false; }
+  },
+  setMute(m) {
+    try { localStorage.setItem(MUTE_KEY, String(m)); } catch (e) {}
+  }
+};
+
+// ============================================================
+// PARTICLE SYSTEM (§8.3)
+// ============================================================
+const particles = [];
+
+function initParticles() {
+  particles.length = 0;
+  for (let i = 0; i < MAX_PARTICLES; i++) {
+    particles.push({ active: false, x: 0, y: 0, vx: 0, vy: 0, life: 0, color: null, size: 0 });
+  }
+}
+
+function clearParticles() {
+  for (let i = 0; i < particles.length; i++) particles[i].active = false;
+}
+
+function spawnParticle(x, y, color, opts) {
+  opts = opts || {};
+  for (let i = 0; i < particles.length; i++) {
+    if (!particles[i].active) {
+      const p = particles[i];
+      p.active = true;
+      p.x = x; p.y = y;
+      p.vx = opts.vx !== undefined ? opts.vx : (Math.random() - 0.5) * 6;
+      p.vy = opts.vy !== undefined ? opts.vy : (Math.random() - 0.5) * 6;
+      p.life = 1.0;
+      p.color = color;
+      p.size = opts.size || (cellSize * 0.15 + Math.random() * cellSize * 0.15);
+      return;
+    }
+  }
+}
+
+function spawnEatParticles(x, y) {
+  for (let i = 0; i < 12; i++) {
+    const angle = (Math.PI * 2 * i) / 12 + Math.random() * 0.3;
+    const speed = 2 + Math.random() * 4;
+    spawnParticle(x, y, PALETTE.food, {
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      size: cellSize * 0.12 + Math.random() * cellSize * 0.1
+    });
+  }
+  for (let i = 0; i < 6; i++) {
+    spawnParticle(x, y, PALETTE.accent, {
+      vx: (Math.random() - 0.5) * 5,
+      vy: (Math.random() - 0.5) * 5,
+      size: cellSize * 0.08 + Math.random() * cellSize * 0.08
+    });
+  }
+}
+
+function spawnDeathParticles() {
+  for (const seg of snake.body) {
+    const cx = seg.x * cellSize + cellSize / 2;
+    const cy = seg.y * cellSize + cellSize / 2;
+    for (let i = 0; i < 5; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1 + Math.random() * 6;
+      spawnParticle(cx, cy, PALETTE.snake, {
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: cellSize * 0.1 + Math.random() * cellSize * 0.15
+      });
+    }
+    // accent particles
+    for (let i = 0; i < 2; i++) {
+      spawnParticle(cx, cy, PALETTE.food, {
+        vx: (Math.random() - 0.5) * 4,
+        vy: (Math.random() - 0.5) * 4
+      });
+    }
+  }
+}
+
+function updateParticles(dt) {
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    if (!p.active) continue;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.vx *= 0.93;
+    p.vy *= 0.93;
+    p.life -= dt / PARTICLE_LIFE;
+    if (p.life <= 0) p.active = false;
+  }
+}
+
+// ============================================================
+// EFFECTS
+// ============================================================
+let screenFlash = 0;
+let shakeAmount = 0;
+let snakeFlashColor = null;
+let snakeFlashTime = 0;
+let deathParticleTimer = 0;
+
+function triggerDeathEffects() {
+  shakeAmount = 8;
+  snakeFlashColor = PALETTE.food;
+  snakeFlashTime = millis();
+  spawnDeathParticles();
+}
+
+function applyScreenShake() {
+  if (shakeAmount > 0.1) {
+    translate(
+      (Math.random() - 0.5) * shakeAmount * 2,
+      (Math.random() - 0.5) * shakeAmount * 2
+    );
+    shakeAmount *= 0.88;
+  }
+}
+
+// ============================================================
+// AUDIO SYSTEM (§7)
+// ============================================================
+let audioReady = false;
+let muted = false;
+
+function initAudio() {
+  if (audioReady) return;
+  try {
+    if (typeof getAudioContext === 'function') {
+      const ctx = getAudioContext();
+      if (ctx.state !== 'running') userStartAudio();
+    }
+    audioReady = true;
+  } catch (e) {
+    audioReady = false;
+  }
+}
+
+function playEatSFX() {
+  if (muted || !audioReady) return;
+  try {
+    const osc = new p5.Oscillator('square');
+    const env = new p5.Envelope();
+    env.setADSR(0.005, 0.04, 0.0, 0.01);
+    env.setRange(0.15, 0);
+    osc.freq(800 + Math.min(foodsEaten * 30, 400));
+    osc.start();
+    env.play(osc, 0, 0.05);
+    setTimeout(() => { try { osc.stop(); } catch(e) {} }, 80);
+  } catch(e) {}
+}
+
+function playDeathSFX() {
+  if (muted || !audioReady) return;
+  try {
+    const osc = new p5.Oscillator('square');
+    const env = new p5.Envelope();
+    env.setADSR(0.01, 0.1, 0.0, 0.2);
+    env.setRange(0.15, 0);
+    osc.freq(400);
+    osc.start();
+    osc.freq(100, 0.3);
+    env.play(osc, 0, 0.35);
+    setTimeout(() => { try { osc.stop(); } catch(e) {} }, 400);
+  } catch(e) {}
+}
+
+function playMenuSFX() {
+  if (muted || !audioReady) return;
+  try {
+    const osc = new p5.Oscillator('square');
+    const env = new p5.Envelope();
+    env.setADSR(0.005, 0.06, 0.0, 0.01);
+    env.setRange(0.1, 0);
+    osc.freq(523);
+    osc.start();
+    env.play(osc, 0, 0.08);
+    setTimeout(() => { try { osc.freq(784); } catch(e) {} }, 60);
+    setTimeout(() => { try { osc.stop(); } catch(e) {} }, 180);
+  } catch(e) {}
+}
+
+// Background music — chiptune loop
+const MELODY = [
+  { freq: 523, dur: 200 },  // C5
+  { freq: 659, dur: 200 },  // E5
+  { freq: 784, dur: 200 },  // G5
+  { freq: 1047, dur: 200 }, // C6
+  { freq: 784, dur: 200 },  // G5
+  { freq: 659, dur: 200 },  // E5
+  { freq: 587, dur: 200 },  // D5
+  { freq: 698, dur: 200 },  // F5
+  { freq: 880, dur: 200 },  // A5
+  { freq: 1175, dur: 200 }, // D6
+  { freq: 880, dur: 200 },  // A5
+  { freq: 698, dur: 200 },  // F5
+  { freq: 659, dur: 200 },  // E5
+  { freq: 523, dur: 200 },  // C5
+  { freq: 440, dur: 200 },  // A4
+  { freq: 523, dur: 400 },  // C5 (held)
+];
+
+let melodyIndex = 0;
+let nextNoteTime = 0;
+
+function updateMusic() {
+  if (muted || !audioReady || currentState !== STATES.PLAYING) return;
+  const now = millis();
+  if (now >= nextNoteTime) {
+    const note = MELODY[melodyIndex];
+    try {
+      const osc = new p5.Oscillator('square');
+      const env = new p5.Envelope();
+      env.setADSR(0.01, 0.08, 0.0, 0.05);
+      env.setRange(0.06, 0);
+      osc.freq(note.freq);
+      osc.start();
+      env.play(osc, 0, note.dur / 1000 * 0.8);
+      setTimeout(() => { try { osc.stop(); } catch(e) {} }, note.dur + 50);
+    } catch(e) {}
+    nextNoteTime = now + note.dur;
+    melodyIndex = (melodyIndex + 1) % MELODY.length;
+  }
+}
+
+// ============================================================
+// CANVAS SIZING (§9)
+// ============================================================
+let cellSize = 0;
+let canvasW = 0;
+let canvasH = 0;
+
+function resizeCanvasToFit() {
+  const margin = 20;
+  const maxCanvas = 600;
+  const vw = windowWidth;
+  const vh = windowHeight;
+  let size = Math.min(vw, vh) - margin * 2;
+  size = Math.min(size, maxCanvas);
+  cellSize = Math.floor(size / COLS);
+  canvasW = cellSize * COLS;
+  canvasH = cellSize * ROWS;
+  resizeCanvas(canvasW, canvasH);
+}
+
+// ============================================================
+// RENDER HELPERS (§10.2)
+// ============================================================
+function drawWithGlow(drawFn, glowColor, blurRadius) {
+  drawingContext.save();
+  drawingContext.shadowBlur = blurRadius;
+  drawingContext.shadowColor = glowColor;
+  drawFn();
+  drawingContext.restore();
+}
+
+// ============================================================
+// RENDER PIPELINE (§6)
+// ============================================================
+function renderBackground() {
+  background(PALETTE.bg);
+}
+
+function renderGrid() {
+  push();
+  stroke(PALETTE.grid);
+  strokeWeight(1);
+  noFill();
+  for (let x = 0; x <= COLS; x++) {
+    line(x * cellSize, 0, x * cellSize, canvasH);
+  }
+  for (let y = 0; y <= ROWS; y++) {
+    line(0, y * cellSize, canvasW, y * cellSize);
+  }
+  pop();
+}
+
+function renderFood() {
+  if (!food) return;
+  const pulse = (Math.sin(millis() / 200) + 1) / 2;
+  const scl = 0.8 + pulse * 0.4;
+  const cx = food.x * cellSize + cellSize / 2;
+  const cy = food.y * cellSize + cellSize / 2;
+  const r = Math.max(2, (cellSize / 2 - 2) * scl);
+
+  drawWithGlow(() => {
+    fill(PALETTE.food);
+    noStroke();
+    circle(cx, cy, r * 2);
+    // inner highlight
+    fill(255, 255, 255, 100);
+    circle(cx - r * 0.25, cy - r * 0.25, r * 0.6);
+  }, PALETTE.food, 20);
+}
+
+function renderSnake() {
+  if (!snake || snake.body.length === 0) return;
+  const pulse = (Math.sin(millis() / 500) + 1) / 2;
+  const glowR = 10 + pulse * 10;
+  const interp = tickAccumulator / tickInterval;
+  const t = Math.min(interp, 1);
+
+  const isFlashing = snakeFlashColor && (millis() - snakeFlashTime < 200);
+  const flashPulse = isFlashing ? (Math.sin((millis() - snakeFlashTime) / 30) + 1) / 2 : 0;
+  const bodyColor = isFlashing ? lerpColor(color(PALETTE.snake), color(snakeFlashColor), flashPulse) : color(PALETTE.snake);
+
+  drawWithGlow(() => {
+    noStroke();
+
+    for (let i = snake.body.length - 1; i >= 0; i--) {
+      const seg = snake.body[i];
+      const prev = snake.prevBody[i] || seg;
+      const ix = lerp(prev.x, seg.x, t);
+      const iy = lerp(prev.y, seg.y, t);
+
+      const px = ix * cellSize;
+      const py = iy * cellSize;
+      const pad = Math.max(1, cellSize * 0.08);
+
+      if (i === 0) {
+        // Head
+        fill(lerpColor(bodyColor, color(PALETTE.snakeHead), 0.5));
+        rect(px + pad, py + pad, cellSize - pad * 2, cellSize - pad * 2, Math.max(2, cellSize * 0.15));
+        // Eyes
+        fill(PALETTE.white);
+        const eyeOff = cellSize * 0.18;
+        const eyeR = Math.max(1.5, cellSize * 0.08);
+        const dx = snake.direction.x;
+        const dy = snake.direction.y;
+        // eye positions depend on direction
+        const ex1 = px + cellSize / 2 + (-dy) * eyeOff + dx * eyeOff * 0.5;
+        const ey1 = py + cellSize / 2 + (dx) * eyeOff + dy * eyeOff * 0.5;
+        const ex2 = px + cellSize / 2 - (-dy) * eyeOff + dx * eyeOff * 0.5;
+        const ey2 = py + cellSize / 2 - (dx) * eyeOff + dy * eyeOff * 0.5;
+        circle(ex1, ey1, eyeR * 2);
+        circle(ex2, ey2, eyeR * 2);
+        // pupils
+        fill(0);
+        circle(ex1 + dx * eyeR * 0.3, ey1 + dy * eyeR * 0.3, eyeR);
+        circle(ex2 + dx * eyeR * 0.3, ey2 + dy * eyeR * 0.3, eyeR);
+      } else {
+        const fade = Math.min(1, i / (snake.body.length + 2));
+        fill(lerpColor(bodyColor, color(PALETTE.bg), fade * 0.15));
+        rect(px + pad, py + pad, cellSize - pad * 2, cellSize - pad * 2, Math.max(1, cellSize * 0.1));
+      }
+    }
+  }, isFlashing ? snakeFlashColor : PALETTE.snake, glowR);
+}
+
+function renderParticles() {
+  push();
+  blendMode(ADD);
+  noStroke();
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+    if (!p.active) continue;
+    const c = color(p.color);
+    c.setAlpha(p.life * 200);
+    fill(c);
+    circle(p.x, p.y, p.size * p.life);
+  }
+  blendMode(BLEND);
+  pop();
+}
+
+function renderHUD() {
+  if (currentState === STATES.MENU) return;
+  push();
+  textAlign(LEFT, TOP);
+  textSize(Math.max(12, cellSize * 0.5));
+  textStyle(BOLD);
+
+  // Score
+  drawingContext.shadowBlur = 8;
+  drawingContext.shadowColor = PALETTE.scoreText;
+  fill(PALETTE.scoreText);
+  text('SCORE ' + score, cellSize * 0.3, cellSize * 0.3);
+
+  // Best
+  textAlign(RIGHT, TOP);
+  drawingContext.shadowColor = PALETTE.accent;
+  fill(PALETTE.accent);
+  text('BEST ' + highScore, canvasW - cellSize * 0.3, cellSize * 0.3);
+
+  drawingContext.shadowBlur = 0;
+
+  // Mute indicator
+  if (muted) {
+    textAlign(RIGHT, BOTTOM);
+    textSize(Math.max(10, cellSize * 0.35));
+    fill(255, 255, 255, 120);
+    text('MUTED', canvasW - cellSize * 0.3, canvasH - cellSize * 0.3);
+  }
+  pop();
+}
+
+function renderScreenFlash() {
+  if (screenFlash > 0.01) {
+    push();
+    noStroke();
+    fill(255, 255, 255, screenFlash * 40);
+    rect(0, 0, canvasW, canvasH);
+    pop();
+    screenFlash *= 0.82;
+  }
+}
+
+function renderStateOverlay() {
+  if (currentState === STATES.PLAYING) return;
+
+  push();
+  // Dim background
+  if (currentState !== STATES.PAUSED) {
+    noStroke();
+    fill(10, 10, 15, 180);
+    rect(0, 0, canvasW, canvasH);
+  }
+
+  textAlign(CENTER, CENTER);
+
+  if (currentState === STATES.MENU) {
+    drawTitle();
+    drawPulsingText('TAP / SPACE TO PLAY', canvasH / 2 + cellSize * 2);
+    textSize(Math.max(10, cellSize * 0.3));
+    fill(255, 255, 255, 100);
+    text('Arrow Keys / WASD / Swipe', canvasW / 2, canvasH / 2 + cellSize * 3.5);
+    if (highScore > 0) {
+      textSize(Math.max(11, cellSize * 0.35));
+      fill(PALETTE.accent);
+      text('BEST: ' + highScore, canvasW / 2, canvasH - cellSize * 2);
+    }
+  } else if (currentState === STATES.GAME_OVER) {
+    // Death title
+    push();
+    drawingContext.shadowBlur = 20;
+    drawingContext.shadowColor = PALETTE.food;
+    fill(PALETTE.food);
+    textSize(Math.max(20, cellSize * 1.0));
+    textStyle(BOLD);
+    text('GAME OVER', canvasW / 2, canvasH / 2 - cellSize * 1.5);
+    pop();
+
+    textSize(Math.max(13, cellSize * 0.55));
+    fill(PALETTE.scoreText);
+    text('Score: ' + score, canvasW / 2, canvasH / 2 + cellSize * 0.5);
+    fill(PALETTE.accent);
+    textSize(Math.max(11, cellSize * 0.4));
+    text('Best: ' + highScore, canvasW / 2, canvasH / 2 + cellSize * 1.3);
+
+    drawPulsingText('TAP / SPACE TO RETRY', canvasH / 2 + cellSize * 2.8);
+  } else if (currentState === STATES.PAUSED) {
+    push();
+    drawingContext.shadowBlur = 15;
+    drawingContext.shadowColor = PALETTE.scoreText;
+    fill(PALETTE.scoreText);
+    textSize(Math.max(18, cellSize * 0.9));
+    textStyle(BOLD);
+    text('PAUSED', canvasW / 2, canvasH / 2 - cellSize * 0.5);
+    pop();
+    drawPulsingText('TAP / SPACE TO RESUME', canvasH / 2 + cellSize * 1.5);
+  }
+  pop();
+}
+
+function drawTitle() {
+  push();
+  const titleSize = Math.max(22, cellSize * 1.2);
+  textStyle(BOLD);
+  textAlign(CENTER, CENTER);
+  drawingContext.shadowBlur = 25;
+  drawingContext.shadowColor = PALETTE.snake;
+  fill(PALETTE.snake);
+  textSize(titleSize);
+  text('SNAKE', canvasW / 2, canvasH / 2 - cellSize * 1.5);
+  drawingContext.shadowColor = PALETTE.food;
+  fill(PALETTE.food);
+  text('NEON', canvasW / 2, canvasH / 2 - cellSize * 0.2);
+  pop();
+}
+
+function drawPulsingText(txt, y) {
+  push();
+  const pulse = (Math.sin(millis() / 400) + 1) / 2;
+  textAlign(CENTER, CENTER);
+  textSize(Math.max(11, cellSize * 0.42));
+  textStyle(BOLD);
+  fill(255, 255, 255, 100 + pulse * 155);
+  text(txt, canvasW / 2, y);
+  pop();
+}
+
+// ============================================================
+// p5.js LIFECYCLE
+// ============================================================
+function setup() {
+  pixelDensity(1);
+  createCanvas(600, 600);   // create first, then resize
+  resizeCanvasToFit();
+  frameRate(60);
+  drawingContext.imageSmoothingEnabled = false;
+
+  highScore = Storage.getHighScore();
+  muted = Storage.getMute();
+  initParticles();
+  initSnake();
+  spawnFood();
+
+  // Auto-pause on tab blur (§5.5)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && currentState === STATES.PLAYING) {
+      transitionTo(STATES.PAUSED);
+    }
+  });
+}
+
+function draw() {
+  const now = millis();
+  let dt = now - lastFrameTime;
+  lastFrameTime = now;
+  if (dt > 100) dt = 100; // clamp big gaps (tab switch)
+
+  // Game logic tick (fixed-step accumulator)
+  if (currentState === STATES.PLAYING) {
+    tickAccumulator += dt;
+    let safety = 0;
+    while (tickAccumulator >= tickInterval && safety < 10) {
+      snakeTick();
+      tickAccumulator -= tickInterval;
+      safety++;
+      if (currentState !== STATES.PLAYING) break;
+    }
+    updateMusic();
+  }
+
+  // Update particles always (so death animation plays)
+  updateParticles(dt);
+
+  // Render
+  push();
+  applyScreenShake();
+  renderBackground();
+  renderGrid();
+  renderFood();
+  renderSnake();
+  renderParticles();
+  renderScreenFlash();
+  pop();
+
+  renderHUD();
+  renderStateOverlay();
+}
+
+// ============================================================
+// INPUT — Keyboard (§5.4)
+// ============================================================
+function keyPressed() {
+  const k = keyCode;
+
+  // Direction keys
+  if (k === UP_ARROW    || k === 87) setDirection(DIR.UP);
+  if (k === DOWN_ARROW  || k === 83) setDirection(DIR.DOWN);
+  if (k === LEFT_ARROW  || k === 65) setDirection(DIR.LEFT);
+  if (k === RIGHT_ARROW || k === 68) setDirection(DIR.RIGHT);
+
+  // State keys
+  if (k === 32 || k === ENTER) {
+    handleAction();
+  }
+  if (k === 80 || k === ESCAPE) {
+    if (currentState === STATES.PLAYING) transitionTo(STATES.PAUSED);
+    else if (currentState === STATES.PAUSED) transitionTo(STATES.PLAYING);
+  }
+  // Mute toggle
+  if (k === 77) {
+    muted = !muted;
+    Storage.setMute(muted);
+  }
+
+  // Prevent default scroll for arrows/space
+  if ([32, UP_ARROW, DOWN_ARROW, LEFT_ARROW, RIGHT_ARROW].includes(k)) {
+    return false;
+  }
+}
+
+// ============================================================
+// INPUT — Touch/Swipe (§5.3)
+// ============================================================
+let touchStart = null;
+
+function touchStarted() {
+  initAudio();
+  if (touches.length > 0) {
+    touchStart = { x: touches[0].x, y: touches[0].y };
+  } else if (mouseIsPressed) {
+    // Mouse fallback
+    touchStart = { x: mouseX, y: mouseY };
+  }
+  return false;
+}
+
+function touchMoved() {
+  if (!touchStart) return false;
+  let tx, ty;
+  if (touches.length > 0) {
+    tx = touches[0].x; ty = touches[0].y;
+  } else {
+    tx = mouseX; ty = mouseY;
+  }
+  const dx = tx - touchStart.x;
+  const dy = ty - touchStart.y;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) >= SWIPE_THRESHOLD) {
+    if (Math.abs(dx) > Math.abs(dy)) {
+      setDirection(dx > 0 ? DIR.RIGHT : DIR.LEFT);
+    } else {
+      setDirection(dy > 0 ? DIR.DOWN : DIR.UP);
+    }
+    touchStart = { x: tx, y: ty };
+  }
+  return false;
+}
+
+function touchEnded() {
+  if (touchStart) {
+    // If touchMoved didn't register a swipe, this is a tap
+    let tx, ty;
+    let moved = false;
+    if (touches.length > 0) {
+      tx = touches[0].x; ty = touches[0].y;
+    } else {
+      tx = mouseX; ty = mouseY;
+    }
+    const dx = tx - touchStart.x;
+    const dy = ty - touchStart.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_THRESHOLD) {
+      handleAction();
+    }
+  }
+  touchStart = null;
+  return false;
+}
+
+function mousePressed() {
+  initAudio();
+  touchStart = { x: mouseX, y: mouseY };
+  return false;
+}
+
+function mouseReleased() {
+  if (touchStart) {
+    const dx = mouseX - touchStart.x;
+    const dy = mouseY - touchStart.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < SWIPE_THRESHOLD) {
+      handleAction();
+    }
+  }
+  touchStart = null;
+  return false;
+}
+
+// ============================================================
+// ACTION HANDLER (tap/space/enter)
+// ============================================================
+function handleAction() {
+  initAudio();
+
+  if (currentState === STATES.MENU) {
+    resetGame();
+    transitionTo(STATES.PLAYING);
+    playMenuSFX();
+  } else if (currentState === STATES.GAME_OVER) {
+    // Small delay to let death particles show
+    resetGame();
+    transitionTo(STATES.PLAYING);
+    playMenuSFX();
+  } else if (currentState === STATES.PAUSED) {
+    transitionTo(STATES.PLAYING);
+  } else if (currentState === STATES.PLAYING) {
+    // Tap during play = pause (mobile convenience)
+    transitionTo(STATES.PAUSED);
+  }
+}
+
+// ============================================================
+// RESIZE
+// ============================================================
+function windowResized() {
+  resizeCanvasToFit();
+}
+
+// Start p5 instance (script runs after p5.js loads, so auto-init already missed)
+new p5();
+</script>
+</body>
+</html>

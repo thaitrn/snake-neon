@@ -1,0 +1,312 @@
+{
+  "tests": [
+    {
+      "name": "TC-LOAD-01: Page loads within 2s",
+      "passed": true,
+      "detail": "1005ms",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-LOAD-02: No page errors",
+      "passed": false,
+      "detail": "p5 is not defined; AbortError: Unable to load a worklet's module.",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-LOAD-03: Initial state is MENU",
+      "passed": true,
+      "detail": "state=MENU",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-RENDER-01: Canvas element exists",
+      "passed": false,
+      "detail": "",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-RENDER-02: Canvas is square (BR-01)",
+      "passed": false,
+      "detail": "undefinedxundefined",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-STATE-01: Space: MENU→PLAYING",
+      "passed": true,
+      "detail": "state=PLAYING",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-STATE-02: P: PLAYING→PAUSED",
+      "passed": true,
+      "detail": "state=PAUSED",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-STATE-03: P: PAUSED→PLAYING",
+      "passed": true,
+      "detail": "state=PLAYING",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-STATE-04: Esc: PLAYING→PAUSED",
+      "passed": true,
+      "detail": "state=PAUSED",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-STATE-05: Esc: PAUSED→PLAYING",
+      "passed": true,
+      "detail": "state=PLAYING",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MOVE-01: ArrowUp sets buffer to UP",
+      "passed": true,
+      "detail": "nextDir={\"x\":0,\"y\":-1}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MOVE-01b: Direction applied as UP after tick",
+      "passed": false,
+      "detail": "dir={\"x\":1,\"y\":0}",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-MOVE-02: ArrowRight sets buffer to RIGHT",
+      "passed": true,
+      "detail": "nextDir={\"x\":1,\"y\":0}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MOVE-02b: Direction applied as RIGHT after tick",
+      "passed": true,
+      "detail": "dir={\"x\":1,\"y\":0}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MOVE-03: ArrowDown sets buffer to DOWN",
+      "passed": true,
+      "detail": "nextDir={\"x\":0,\"y\":1}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MOVE-03b: Direction applied as DOWN after tick",
+      "passed": false,
+      "detail": "dir={\"x\":1,\"y\":0}",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-MOVE-04: ArrowLeft sets buffer to LEFT",
+      "passed": true,
+      "detail": "nextDir={\"x\":-1,\"y\":0}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MOVE-04b: Direction applied as LEFT after tick",
+      "passed": false,
+      "detail": "dir={\"x\":1,\"y\":0}",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-MOVE-05: W sets buffer to UP",
+      "passed": true,
+      "detail": "nextDir={\"x\":0,\"y\":-1}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MOVE-06: D sets buffer to RIGHT",
+      "passed": true,
+      "detail": "nextDir={\"x\":1,\"y\":0}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MOVE-07: S sets buffer to DOWN",
+      "passed": true,
+      "detail": "nextDir={\"x\":0,\"y\":1}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MOVE-08: A sets buffer to LEFT",
+      "passed": true,
+      "detail": "nextDir={\"x\":-1,\"y\":0}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-DIR-01: 180° reverse blocked (LEFT→RIGHT rejected)",
+      "passed": true,
+      "detail": "nextDir={\"x\":-1,\"y\":0}, currentDir={\"x\":1,\"y\":0}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-SCORE-01: Score +10 on eat",
+      "passed": false,
+      "detail": "0→0",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-SCORE-02: Snake grows +1 on eat",
+      "passed": false,
+      "detail": "3→3",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-FOOD-01: Food exists after eat",
+      "passed": true,
+      "detail": "food={\"x\":9,\"y\":8}",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-FOOD-02: Food not on snake body (BR-04)",
+      "passed": true,
+      "detail": "OK",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-COLL-01: Wall collision → GAME_OVER",
+      "passed": false,
+      "detail": "state=PLAYING, head={\"x\":15,\"y\":8}",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-COLL-02: Self collision → GAME_OVER",
+      "passed": false,
+      "detail": "state=PLAYING, head={\"x\":5,\"y\":5}",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-RESTART-01: Space: GAME_OVER→PLAYING",
+      "passed": false,
+      "detail": "state=PAUSED",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-RESTART-02: Score resets to 0",
+      "passed": true,
+      "detail": "score=0",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-RESTART-03: Snake resets to length 3",
+      "passed": false,
+      "detail": "len=6",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-RESTART-04: Tick resets to 150ms",
+      "passed": true,
+      "detail": "tick=150ms",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-HS-01: High score saved to localStorage",
+      "passed": true,
+      "detail": "value=999",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-HS-02: localStorage key is snake_neon_highscore",
+      "passed": true,
+      "detail": "key=snake_neon_highscore",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MUTE-01: M toggles mute state",
+      "passed": true,
+      "detail": "false→true",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-MUTE-02: Mute persisted to localStorage",
+      "passed": true,
+      "detail": "value=true",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-PAUSE-01: Auto-pause when tab hidden",
+      "passed": false,
+      "detail": "state=PLAYING",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-DIFF-01: Speed increases after eating",
+      "passed": false,
+      "detail": "tick=150ms, foods=0",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-DIFF-02: Score matches foods×10",
+      "passed": false,
+      "detail": "score=999, foods=0",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-DIFF-03: Speed caps at 60ms (BR-11a)",
+      "passed": true,
+      "detail": "tick=60ms",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-EDGE-01: Full board triggers GAME_OVER (BR-05)",
+      "passed": false,
+      "detail": "state=PLAYING",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-EDGE-02: Rapid direction changes don't crash",
+      "passed": true,
+      "detail": "state=PLAYING, no exception",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-EDGE-03: Food never spawns on body (50 iterations)",
+      "passed": true,
+      "detail": "0 violations out of 50",
+      "status": "PASS"
+    },
+    {
+      "name": "TC-PERF-01: Avg FPS ≥ 50",
+      "passed": false,
+      "detail": "avg=37, min=20, p50=30, samples=173",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-PERF-02: Min FPS ≥ 30 (no severe drops)",
+      "passed": false,
+      "detail": "min=20",
+      "status": "FAIL"
+    },
+    {
+      "name": "TC-PERF-03: No significant memory leak (<30MB)",
+      "passed": true,
+      "detail": "before=9.54MB, after=9.54MB, delta=0.00MB",
+      "status": "PASS"
+    }
+  ],
+  "screenshots": [
+    "01-menu.png",
+    "02-playing.png",
+    "03-paused.png",
+    "04-game-over.png",
+    "05-mobile-portrait.png",
+    "06-desktop.png"
+  ],
+  "metrics": {
+    "loadTimeMs": 1005,
+    "fps": {
+      "samples": 173,
+      "avg": 37.36709979550735,
+      "min": 19.569471569482673,
+      "max": 61.349693431004994,
+      "p50": 30.120481884450104
+    },
+    "memoryDeltaMB": 0,
+    "memBeforeMB": 9.54,
+    "memAfterMB": 9.54
+  },
+  "summary": {
+    "total": 47,
+    "passed": 29,
+    "failed": 18
+  }
+}
