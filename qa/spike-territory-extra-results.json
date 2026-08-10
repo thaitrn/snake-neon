@@ -1,0 +1,210 @@
+{
+  "tests": [
+    {
+      "name": "PERF desktop 17x17: 60fps-capable (p95 draw <16ms OR fps≥55)",
+      "passed": true,
+      "detail": "fps=41, draw p50=0.2ms p95=0.5ms max=1.4ms, cell=35px",
+      "status": "PASS"
+    },
+    {
+      "name": "PERF desktop 25x25: 60fps-capable (p95 draw <16ms OR fps≥55)",
+      "passed": true,
+      "detail": "fps=28, draw p50=0.3ms p95=0.4ms max=0.4ms, cell=24px",
+      "status": "PASS"
+    },
+    {
+      "name": "PERF desktop 33x33: 60fps-capable (p95 draw <16ms OR fps≥55)",
+      "passed": true,
+      "detail": "fps=29, draw p50=0.3ms p95=1.1ms max=1.6ms, cell=18px",
+      "status": "PASS"
+    },
+    {
+      "name": "PERF desktop 41x41: 60fps-capable (p95 draw <16ms OR fps≥55)",
+      "passed": true,
+      "detail": "fps=30, draw p50=0.2ms p95=0.3ms max=0.4ms, cell=14px",
+      "status": "PASS"
+    },
+    {
+      "name": "PERF mobile 17x17: 60fps-capable (p95 draw <16ms OR fps≥50)",
+      "passed": true,
+      "detail": "fps=48, draw p50=0.3ms p95=0.9ms max=2.3ms, cell=19px",
+      "status": "PASS"
+    },
+    {
+      "name": "PERF mobile 33x33: 60fps-capable (p95 draw <16ms OR fps≥50)",
+      "passed": true,
+      "detail": "fps=37, draw p50=0.3ms p95=0.5ms max=0.6ms, cell=10px",
+      "status": "PASS"
+    },
+    {
+      "name": "PERF mobile 41x41: 60fps-capable (p95 draw <16ms OR fps≥50)",
+      "passed": true,
+      "detail": "fps=30, draw p50=0.2ms p95=0.3ms max=0.4ms, cell=8px",
+      "status": "PASS"
+    },
+    {
+      "name": "E1: expandGrid() no-op at cap 41x41",
+      "passed": true,
+      "detail": "before=41x41 after=41x41",
+      "status": "PASS"
+    },
+    {
+      "name": "E2: food never spawns on snake body (12 expansions)",
+      "passed": true,
+      "detail": "violations=0/12",
+      "status": "PASS"
+    },
+    {
+      "name": "E3: food never out-of-bounds (12 expansions)",
+      "passed": true,
+      "detail": "violations=0/12",
+      "status": "PASS"
+    },
+    {
+      "name": "E4: spike triangle count = 2*COLS + 2*ROWS (symmetric spikes)",
+      "passed": true,
+      "detail": "triangles=80, expected=80 (COLS=20, ROWS=20)",
+      "status": "PASS"
+    },
+    {
+      "name": "E5: rapid 20x expandGrid keeps snake coords valid (no NaN/negative)",
+      "passed": true,
+      "detail": "COLS=40, ROWS=40, len=3, head=(18,18)",
+      "status": "PASS"
+    },
+    {
+      "name": "E6: resetGame() after cap returns 17x17 + score 0",
+      "passed": true,
+      "detail": "COLS=17, ROWS=17, score=0, foods=0, tick=150ms",
+      "status": "PASS"
+    },
+    {
+      "name": "E7: spike length scales with cellSize (17→41 shrinks) & < 35% cap",
+      "passed": true,
+      "detail": "17: len=9.8px (cell 35px) | 41: len=3.9px (cell 14px)",
+      "status": "PASS"
+    },
+    {
+      "name": "E0: no unhandled JS errors during all edge-case tests",
+      "passed": true,
+      "detail": "errors=0",
+      "status": "PASS"
+    }
+  ],
+  "metrics": {
+    "desktopPerf": {
+      "17": {
+        "cols": 17,
+        "rows": 17,
+        "cellSize": 35,
+        "canvasW": 595,
+        "canvasH": 595,
+        "perf": {
+          "fps": 41,
+          "avgMs": 0.29,
+          "p50Ms": 0.2,
+          "p95Ms": 0.5,
+          "maxMs": 1.4,
+          "samples": 61
+        }
+      },
+      "25": {
+        "cols": 25,
+        "rows": 25,
+        "cellSize": 24,
+        "canvasW": 600,
+        "canvasH": 600,
+        "perf": {
+          "fps": 28,
+          "avgMs": 0.27,
+          "p50Ms": 0.3,
+          "p95Ms": 0.4,
+          "maxMs": 0.4,
+          "samples": 42
+        }
+      },
+      "33": {
+        "cols": 33,
+        "rows": 33,
+        "cellSize": 18,
+        "canvasW": 594,
+        "canvasH": 594,
+        "perf": {
+          "fps": 29,
+          "avgMs": 0.44,
+          "p50Ms": 0.3,
+          "p95Ms": 1.1,
+          "maxMs": 1.6,
+          "samples": 44
+        }
+      },
+      "41": {
+        "cols": 41,
+        "rows": 41,
+        "cellSize": 14,
+        "canvasW": 574,
+        "canvasH": 574,
+        "perf": {
+          "fps": 30,
+          "avgMs": 0.22,
+          "p50Ms": 0.2,
+          "p95Ms": 0.3,
+          "maxMs": 0.4,
+          "samples": 45
+        }
+      }
+    },
+    "mobilePerf": {
+      "17": {
+        "cols": 18,
+        "rows": 18,
+        "cellSize": 19,
+        "canvasW": 342,
+        "canvasH": 342,
+        "perf": {
+          "fps": 48,
+          "avgMs": 0.34,
+          "p50Ms": 0.3,
+          "p95Ms": 0.9,
+          "maxMs": 2.3,
+          "samples": 72
+        }
+      },
+      "33": {
+        "cols": 33,
+        "rows": 33,
+        "cellSize": 10,
+        "canvasW": 330,
+        "canvasH": 330,
+        "perf": {
+          "fps": 37,
+          "avgMs": 0.29,
+          "p50Ms": 0.3,
+          "p95Ms": 0.5,
+          "maxMs": 0.6,
+          "samples": 55
+        }
+      },
+      "41": {
+        "cols": 41,
+        "rows": 41,
+        "cellSize": 8,
+        "canvasW": 328,
+        "canvasH": 328,
+        "perf": {
+          "fps": 30,
+          "avgMs": 0.24,
+          "p50Ms": 0.2,
+          "p95Ms": 0.3,
+          "maxMs": 0.4,
+          "samples": 45
+        }
+      }
+    }
+  },
+  "summary": {
+    "total": 15,
+    "passed": 15,
+    "failed": 0
+  }
+}

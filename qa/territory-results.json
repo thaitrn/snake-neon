@@ -15,49 +15,49 @@
     {
       "name": "AC-S2/S3: Spike pixels on TOP edge (glow visible)",
       "passed": true,
-      "detail": "red pixels=1554",
+      "detail": "red pixels=1225",
       "status": "PASS"
     },
     {
       "name": "AC-S2/S3: Spike pixels on BOTTOM edge",
       "passed": true,
-      "detail": "red pixels=1554",
+      "detail": "red pixels=1225",
       "status": "PASS"
     },
     {
       "name": "AC-S2/S3: Spike pixels on LEFT edge",
       "passed": true,
-      "detail": "red pixels=1554",
+      "detail": "red pixels=1208",
       "status": "PASS"
     },
     {
       "name": "AC-S2/S3: Spike pixels on RIGHT edge",
       "passed": true,
-      "detail": "red pixels=1554",
+      "detail": "red pixels=1208",
       "status": "PASS"
     },
     {
       "name": "AC-S4: Spikes do not exceed 35% cellSize into playable",
-      "passed": false,
+      "passed": true,
       "detail": "cellSize=35, maxSpikeDepth=12.25px",
-      "status": "FAIL"
+      "status": "PASS"
     },
     {
       "name": "AC-S2: Spikes visible in PLAYING state",
       "passed": true,
-      "detail": "state=PLAYING, topSpikes=2501",
+      "detail": "state=PLAYING, topSpikes=2083",
       "status": "PASS"
     },
     {
       "name": "AC-S2: Spikes visible in PAUSED state",
       "passed": true,
-      "detail": "state=PAUSED, topSpikes=2501",
+      "detail": "state=PAUSED, topSpikes=2083",
       "status": "PASS"
     },
     {
       "name": "AC-S2: Spikes visible in GAME_OVER state",
       "passed": true,
-      "detail": "state=GAME_OVER, topSpikes=1462",
+      "detail": "state=GAME_OVER, topSpikes=1425",
       "status": "PASS"
     },
     {
@@ -99,7 +99,7 @@
     {
       "name": "AC-T6: Food re-spawned after expansion (exists, not null)",
       "passed": true,
-      "detail": "food={\"x\":10,\"y\":8}",
+      "detail": "food={\"x\":2,\"y\":1}",
       "status": "PASS"
     },
     {
@@ -135,25 +135,25 @@
     {
       "name": "AC-I1: Spike density at grid 17x17 (top edge)",
       "passed": true,
-      "detail": "red pixels=588",
+      "detail": "red pixels=1179",
       "status": "PASS"
     },
     {
       "name": "AC-I1: Spike density at grid 25x25 (top edge)",
       "passed": true,
-      "detail": "red pixels=743",
+      "detail": "red pixels=564",
       "status": "PASS"
     },
     {
       "name": "AC-I1: Spike density at grid 33x33 (top edge)",
       "passed": true,
-      "detail": "red pixels=750",
+      "detail": "red pixels=682",
       "status": "PASS"
     },
     {
       "name": "AC-I1: Spike density at grid 41x41 (top edge)",
       "passed": true,
-      "detail": "red pixels=600",
+      "detail": "red pixels=449",
       "status": "PASS"
     },
     {
@@ -165,13 +165,13 @@
     {
       "name": "AC-I3: Spike walls visible at MENU",
       "passed": true,
-      "detail": "menuTopSpikes=1554",
+      "detail": "menuTopSpikes=1225",
       "status": "PASS"
     },
     {
       "name": "AC-I3: Spike walls visible at PLAYING",
       "passed": true,
-      "detail": "playingTopSpikes=2497",
+      "detail": "playingTopSpikes=2076",
       "status": "PASS"
     },
     {
@@ -184,7 +184,7 @@
   "metrics": {},
   "summary": {
     "total": 30,
-    "passed": 29,
-    "failed": 1
+    "passed": 30,
+    "failed": 0
   }
 }

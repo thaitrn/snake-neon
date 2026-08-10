@@ -14,7 +14,7 @@
 
 const puppeteer = require('puppeteer');
 
-const URL = 'http://localhost:8765/index.html';
+const URL = 'http://127.0.0.1:8766/index.html';
 
 // (name, w, h, minCanvas) — AC-4 thresholds from mobile-ux-redesign.md
 const PORTRAIT_VIEWS = [
@@ -51,11 +51,25 @@ function readState(page) {
 }
 
 async function startGame(page) {
-  // The pauseBtn shows "▶ START" on MENU; clicking it calls handleAction().
-  await page.click('#pauseBtn');
+  // In portrait, #pauseBtn shows "▶ START" on MENU. In landscape, #pauseBtn is
+  // hidden and #startBtn takes over. Pick whichever is visible & clickable.
+  const btnId = await page.evaluate(() => {
+    const pause = document.querySelector('#pauseBtn');
+    if (pause && getComputedStyle(pause).display !== 'none' && pause.offsetWidth > 0) return 'pauseBtn';
+    return 'startBtn';
+  });
+  if (btnId === 'startBtn') {
+    // #startBtn start action is wired to touchstart, NOT click (the click
+    // handler only stops propagation). So call handleAction() directly —
+    // the same function the real touchstart handler invokes.
+    await page.evaluate(() => { if (typeof handleAction === 'function') handleAction(); });
+  } else {
+    await page.click('#pauseBtn');
+  }
   await sleep(250);
-  const label = await page.$eval('#pauseBtn', (el) => el.textContent);
-  return /PAUSE/i.test(label); // started => now shows PAUSE
+  // Verify game actually started via state (more robust than checking label text).
+  const state = await page.evaluate(() => (typeof currentState !== 'undefined') ? currentState : null);
+  return state === 'PLAYING';
 }
 
 async function canvasCenter(page) {
@@ -172,37 +186,65 @@ async function joystickDrag(page, origin, dx, dy, holdMs = 80) {
     // (never a 180° reversal, which the game correctly blocks).
     // Snake starts moving RIGHT. Path: UP → LEFT → DOWN → RIGHT (all 90°).
     // Then a separate 180° reversal check.
+    //
+    // HARNESS NOTE: touchStart at dead-center triggers getTapZone(center,center)
+    // which resolves to DOWN (dy=0, abs(dy)>=abs(dx), dy<0 is false). That
+    // instant-tap-direction is a real game feature (instant response on
+    // finger-down). To test DRAG steering cleanly, start the touch slightly
+    // offset so getTapZone returns a perpendicular baseline, then drag to the
+    // target. This isolates the joystick drag logic from the tap-zone shortcut.
     const dirResult = await (async () => {
       const out = {};
       // nextDirection is consumed at the next snake tick (applied to
       // snake.direction, then cleared to null). So after each drag we wait
       // one+ tick, then read the APPLIED direction (snake.direction).
       // tickInterval starts at 150ms, so 260ms > 1 tick.
-      // UP (perpendicular to initial RIGHT)
-      await joystickDrag(page, center, 0, -60);
+      // Baseline offsets chosen so each target drag is perpendicular to the
+      // post-tap-zone direction (never a 180° reversal).
+      // UP: snake is RIGHT. Start touch offset LEFT (getTapZone→LEFT, perp to
+      //     RIGHT), drag UP. Actually simpler: offset origin so tap-zone = a
+      //     direction perpendicular to the target.
+      //   target UP (0,-1):  perp baseline = LEFT (-1,0)  → origin offset left
+      //   target LEFT (-1,0): perp baseline = UP (0,-1)   → origin offset up
+      //   target DOWN (0,1):  perp baseline = LEFT (-1,0) → origin offset left
+      //   target RIGHT (1,0): perp baseline = UP (0,-1)   → origin offset up
+      const jobs = [
+        { name: 'UP',    drag: [0, -60], originOffset: [-20, 0] },
+        { name: 'LEFT',  drag: [-60, 0], originOffset: [0, -20] },
+        { name: 'DOWN',  drag: [0, 60],  originOffset: [-20, 0] },
+        { name: 'RIGHT', drag: [60, 0],  originOffset: [0, -20] },
+      ];
+      for (const job of jobs) {
+        // Guard: if the snake died during a previous drag (ran into a wall
+        // while we were steering), restart so this direction is testable.
+        const preState = await readState(page);
+        if (preState.state !== 'PLAYING') {
+          await page.evaluate(() => { if (typeof handleAction === 'function') handleAction(); });
+          await sleep(300);
+        }
+        const off = { cx: center.cx + job.originOffset[0], cy: center.cy + job.originOffset[1] };
+        await joystickDrag(page, off, job.drag[0], job.drag[1]);
+        await sleep(260);
+        const st = await readState(page);
+        const want = { UP: [0, -1], LEFT: [-1, 0], DOWN: [0, 1], RIGHT: [1, 0] }[job.name];
+        out[job.name] = st.dir ? (st.dir.x === want[0] && st.dir.y === want[1]) : false;
+      }
+      // 180 rule: reset to RIGHT baseline, then drag LEFT to reverse — must be ignored.
+      // Guard: restart if dead, then set a perpendicular baseline (DOWN) so LEFT
+      // is a real 180° from RIGHT, not from some random dir.
+      let lastSt = await readState(page);
+      if (lastSt.state !== 'PLAYING') {
+        await page.evaluate(() => { if (typeof handleAction === 'function') handleAction(); });
+        await sleep(300);
+      }
+      // Drive to RIGHT (drag right from an UP-perp origin).
+      await joystickDrag(page, { cx: center.cx, cy: center.cy - 20 }, 60, 0);
       await sleep(260);
-      let st = await readState(page);
-      out.UP = st.dir ? (st.dir.x === 0 && st.dir.y === -1) : false;
-      // LEFT (perpendicular to UP)
+      lastSt = await readState(page);
+      const dirBeforeRev = lastSt.dir ? `${lastSt.dir.x},${lastSt.dir.y}` : 'null';
       await joystickDrag(page, center, -60, 0);
       await sleep(260);
-      st = await readState(page);
-      out.LEFT = st.dir ? (st.dir.x === -1 && st.dir.y === 0) : false;
-      // DOWN (perpendicular to LEFT)
-      await joystickDrag(page, center, 0, 60);
-      await sleep(260);
-      st = await readState(page);
-      out.DOWN = st.dir ? (st.dir.x === 0 && st.dir.y === 1) : false;
-      // RIGHT (perpendicular to DOWN)
-      await joystickDrag(page, center, 60, 0);
-      await sleep(260);
-      st = await readState(page);
-      out.RIGHT = st.dir ? (st.dir.x === 1 && st.dir.y === 0) : false;
-      // 180 rule: dir is now RIGHT. Drag LEFT to reverse — must be ignored.
-      const dirBeforeRev = st.dir ? `${st.dir.x},${st.dir.y}` : 'null';
-      await joystickDrag(page, center, -60, 0);
-      await sleep(260);
-      st = await readState(page);
+      const st = await readState(page);
       const dirAfterRev = st.dir ? `${st.dir.x},${st.dir.y}` : 'null';
       out.REVERSE_BLOCKED = !(st.dir && st.dir.x === -1 && st.dir.y === 0);
       out.REVERSE_detail = `${dirBeforeRev}→${dirAfterRev}`;

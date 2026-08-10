@@ -196,6 +196,32 @@ Mechanic mở rộng **thay đổi cân bằng difficulty**:
 
 **Business rule — DIF-02:** Difficulty vẫn **deterministic** — cùng foodsEaten thì cùng grid + speed. Không random.
 
+### 3.6.1 ⚠️ RE-BALANCE VERDICT (2026-08-09) — KHUYẾN NGHỊ REVERT
+
+> **Phân tích định lượng chi tiết:** Xem `docs/mechanics.md` §3.4.
+
+**Kết luận BA sau phân tích:** Territory Expansion **phá difficulty curve** và **không thể re-tune** để có ceiling hợp lý.
+
+| Vấn đề | Chi tiết |
+|---|---|
+| Board 41×41 = 1681 cells | Snake cần 838+ food để đạt 50% density — session ~9 phút, vượt xa arcade target (5 phút) |
+| Speed đã cap ở 60ms (food #30) | Không thể tăng tốc thêm để bù board rộng |
+| Food value không affect difficulty | Điểm chỉ affect score, không affect survival |
+| Không có mechanic nào bù được | Board quá rộng = không thể fix bằng tuning tham số |
+
+**Khuyến nghị: REVERT territory expansion. Grid cố định 17×17.**
+
+Code change cho Frontend:
+- `MAX_COLS`/`MAX_ROWS` → xóa. `COLS`/`ROWS` → đổi `let` về `const`.
+- `expandGrid()` → xóa hàm.
+- `onEatFood()` → xóa block `if (COLS < MAX_COLS...)`.
+- `resetGame()` → xóa dòng reset COLS/ROWS (vì đã const).
+- Difficulty curve §3 mechanics.md giữ nguyên — đã optimal cho 17×17.
+
+**Nếu Sếp muốn giữ expansion (fallback):** Cap 25×25, expand mỗi 2 food (thay vì mỗi 1). Ceiling ~4.5 phút — chấp nhận được nhưng không optimal.
+
+**Trạng thái BR:** BR-22 đến BR-29 (territory expansion rules) → **OBSOLETE** nếu revert. BR-30 (grid cố định 17×17) thay thế.
+
 ### 3.7 Thay đổi code dự kiến (cho Frontend)
 
 | File | Biến/hàm | Thay đổi |

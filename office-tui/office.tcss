@@ -1,0 +1,6 @@
+/* Virtual Office TUI — Textual CSS (architecture §6.3) */
+
+/* ── Global app background ─────────────────────────────────────── */
+Screen {
+    background: $background;
+}

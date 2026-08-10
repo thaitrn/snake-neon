@@ -1,6 +1,6 @@
 {
-  "url": "http://localhost:8765/index.html",
-  "startedAt": "2026-08-09T03:50:51.675Z",
+  "url": "http://127.0.0.1:8766/index.html",
+  "startedAt": "2026-08-09T14:50:08.032Z",
   "viewports": [
     {
       "name": "iPhone SE",
@@ -48,14 +48,14 @@
         "TC2_joystickHidesOnRelease": true,
         "TC2_tapNoPause": true,
         "TC2_dirMapping": {
-          "UP": true,
+          "UP": false,
           "LEFT": true,
           "DOWN": true,
           "RIGHT": true,
           "REVERSE_BLOCKED": true,
-          "REVERSE_detail": "1,0→1,0"
+          "REVERSE_detail": "1,0→0,1"
         },
-        "TC2_allDirectionsOk": true,
+        "TC2_allDirectionsOk": false,
         "TC2_180Rule": true
       },
       "screenshot": "/Users/thaitrn/Workspaces/work/snake-neon/screenshots/qa-iPhone-12-13.png"
@@ -77,26 +77,39 @@
         "TC2_joystickHidesOnRelease": true,
         "TC2_tapNoPause": true,
         "TC2_dirMapping": {
-          "UP": true,
+          "UP": false,
           "LEFT": true,
           "DOWN": true,
           "RIGHT": true,
           "REVERSE_BLOCKED": true,
-          "REVERSE_detail": "1,0→1,0"
+          "REVERSE_detail": "1,0→0,1"
         },
-        "TC2_allDirectionsOk": true,
+        "TC2_allDirectionsOk": false,
         "TC2_180Rule": true
       },
       "screenshot": "/Users/thaitrn/Workspaces/work/snake-neon/screenshots/qa-Samsung-A-series.png"
     }
   ],
-  "bugs": [],
+  "bugs": [
+    {
+      "viewport": "iPhone 12/13",
+      "fails": [
+        "TC2_allDirectionsOk=false"
+      ]
+    },
+    {
+      "viewport": "Samsung A-series",
+      "fails": [
+        "TC2_allDirectionsOk=false"
+      ]
+    }
+  ],
   "summary": {
-    "verdict": "PASS",
-    "readyToShip": true,
+    "verdict": "FAIL",
+    "readyToShip": false,
     "viewportsTested": 3,
     "landscapeTested": 2,
-    "bugCount": 0,
+    "bugCount": 2,
     "fps": 75
   },
   "gameplay": {
@@ -115,7 +128,7 @@
   "landscape": [
     {
       "name": "iPhone SE landscape",
-      "canvas": "306x306",
+      "canvas": "272x272",
       "square": true,
       "noHorizontalOverflow": true,
       "startsInLandscape": true,

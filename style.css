@@ -1,0 +1,134 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  background: #0a0a0f;
+  height: 100%;
+}
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow-y: auto;   /* allow scroll if needed */
+  overflow-x: hidden;
+  min-height: 100vh;
+  padding: 8px 0;
+}
+canvas { display: block; margin: 0 auto; touch-action: none; }
+
+#topbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-family: monospace;
+  color: #00d9ff;
+  font-size: 13px;
+  min-height: 24px;
+}
+#pauseBtn {
+  background: #12121f;
+  border: 2px solid #1a1a2e;
+  border-radius: 8px;
+  color: #00d9ff;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-family: monospace;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+#pauseBtn:active { box-shadow: 0 0 12px #00d9ff; }
+
+/* ============================================================
+   MOBILE CONTROLS V2 — Portrait Tap Zone + Landscape Gamepad
+   ============================================================ */
+/* Hidden by default (portrait / desktop) */
+.gamepad-hidden { display: none !important; }
+.start-hidden { display: none !important; }
+
+/* Landscape body layout: 3 columns — D-pad | canvas | start */
+body.landscape {
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 0;
+  gap: 0;
+  min-height: 100vh;
+}
+/* Topbar spans full width above the 3-column row in landscape.
+   We keep it in flex flow but it's a thin row. To get 3 columns
+   underneath, we wrap via CSS grid on body. */
+body.landscape {
+  display: grid;
+  grid-template-columns: 30% 1fr 24%;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "topbar topbar topbar"
+    "gamepad canvas start";
+  gap: 4px;
+  padding: 4px;
+}
+body.landscape #topbar    { grid-area: topbar; }
+body.landscape #gamepad   { grid-area: gamepad; display: flex !important;
+                              align-items: center; justify-content: center; }
+body.landscape canvas     { grid-area: canvas; align-self: center;
+                              justify-self: center; margin: 0 !important; }
+body.landscape #startBtn  { grid-area: start; display: flex !important;
+                              align-items: center; justify-content: center; }
+
+/* D-pad — cross layout 56x56px buttons, 4px gap */
+#dpad {
+  display: grid;
+  grid-template-columns: 56px 56px 56px;
+  grid-template-rows: 56px 56px 56px;
+  gap: 4px;
+  /* Cross shape: center cell empty, buttons at N/E/S/W */
+  grid-template-areas:
+    ". up ."
+    "left . right"
+    ". down .";
+}
+.dpad-up    { grid-area: up; }
+.dpad-left  { grid-area: left; }
+.dpad-right { grid-area: right; }
+.dpad-down  { grid-area: down; }
+.dpad-btn {
+  width: 56px; height: 56px;
+  background: #12121f;
+  border: 2px solid #1a1a2e;
+  border-radius: 10px;
+  color: #00ff88;
+  font-size: 22px;
+  font-family: monospace;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow 0.1s;
+}
+.dpad-btn:active, .dpad-btn.pressed {
+  box-shadow: 0 0 12px #00ff88;
+  border-color: #00ff88;
+}
+
+/* Start/Pause button — round 72px, right column */
+#startBtn {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: #12121f;
+  border: 2px solid #1a1a2e;
+  color: #00d9ff;
+  font-size: 28px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  transition: box-shadow 0.1s;
+}
+#startBtn:active, #startBtn.pressed {
+  box-shadow: 0 0 16px #00d9ff;
+  border-color: #00d9ff;
+}

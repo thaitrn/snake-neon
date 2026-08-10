@@ -1,0 +1,41 @@
+{
+  "test": "Mobile Controls V2 — Portrait Tap Zone + Landscape Gamepad",
+  "spec": "docs/mobile-controls-v2.md (10 AC in §7)",
+  "suite": "qa/v2-test.js (touchscreen-based, Puppeteer headless)",
+  "ranAt": "2026-08-09",
+  "result": "78 pass, 0 fail",
+  "viewports": {
+    "portrait": ["iPhone SE 375x667", "iPhone 14 390x844"],
+    "landscape": ["iPhone SE 667x375", "iPhone 14 844x390"],
+    "autoSwitch": "390x844 ↔ 844x390",
+    "desktop": "1280x800 (no touch)"
+  },
+  "acceptanceCriteria": {
+    "AC1_portraitTapZone": "PASS — tap 4 regions (UP/LEFT/DOWN/RIGHT) steer correctly; reverse-guard (RIGHT→LEFT) ignored",
+    "AC2_noPauseOnTap": "PASS — tap during PLAYING stays PLAYING; pause only via button",
+    "AC3_gamepadLayout": "PASS — body.landscape, gamepad LEFT of canvas, start RIGHT, pause-hidden, dpad≥56px, start≥72px",
+    "AC4_dpadControls": "PASS — touch D-pad UP/LEFT/DOWN/RIGHT steer; canvas touch=nothing; Start toggles PLAY/PAUSE",
+    "AC5_autoSwitch": "PASS — P→L and L→P switch orient, show/hide gamepad, preserve score+state (no reset)",
+    "AC6_canvasSize": "PASS — portrait ≥320px, landscape ≥260px",
+    "AC7_HUD": "PASS — portrait: topbar+score+pause visible, gamepad/start hidden; landscape: pause hidden (Start takes over)",
+    "AC8_desktop": "PASS — no touch → orient=portrait, gamepad/start hidden, Space starts, arrows steer, P pauses",
+    "AC9_noTouchConflict": "PASS — canvas touch in landscape during PLAYING = no state/dir change; D-pad uses touchstart+preventDefault",
+    "AC10_v1Superseded": "PASS — joystick demoted to swipe-fallback only; tap zone (portrait) + D-pad (landscape) primary"
+  },
+  "bugsFixed": [
+    {
+      "id": "touch-end-no-action",
+      "severity": "high",
+      "symptom": "Portrait: tapping canvas on MENU/GAME_OVER/PAUSED did nothing — game could not start via touch (cascaded into AC-1/AC-2 failures)",
+      "rootCause": "touchEnded() only handled PLAYING+portrait branch; the MENU/GAME_OVER/PAUSED tap-to-action path was missing (regression from the instant-tap refactor)",
+      "fix": "index.html touchEnded() — added near-zero-drag → handleAction() branch for non-PLAYING states"
+    },
+    {
+      "id": "desktop-shows-gamepad",
+      "severity": "medium",
+      "symptom": "Desktop (1280x800, no touch) detected as 'landscape' → gamepad/start buttons visible",
+      "rootCause": "getOrientation() used only width<height; wide desktops trip landscape mode",
+      "fix": "index.html — added isTouchDevice() guard; getOrientation() returns 'portrait' on non-touch devices so mobile controls stay hidden (spec §4.3, AC-8)"
+    }
+  ]
+}

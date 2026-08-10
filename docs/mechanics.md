@@ -288,6 +288,60 @@ Với:
 
 **Business rule:** Difficulty **deterministic** — cùng số food thì cùng tốc độ. Không random difficulty spike.
 
+### 3.4 Re-balance Analysis — Territory Expansion (2026-08-09)
+
+> **Ngữ cảnh:** PM review (§B2 product-process-review.md) phát hiện Territory Expansion (expandGrid 17→41) bị thêm vào code nhưng PRD/mechanics gốc không có. Yêu cầu BA phân tích và đề xuất hướng xử lý.
+
+#### 3.4.1 Vấn đề cốt lõi
+
+Difficulty curve gốc dựa trên **2 trục**:
+1. **Tốc độ** tăng tuyến tính (150→60ms, cap tại food #30)
+2. **Board density** tăng khi snake dài (17×17 cố định → density = snakeLen / 289)
+
+Territory Expansion **phá trục #2** — board phình theo snake → density gần như không tăng → game không có ceiling.
+
+#### 3.4.2 Phân tích định lượng
+
+| Food # | Snake Len | Fixed 17×17 density | Expand 17→41 density | Cap 25×25 density |
+|---|---|---|---|---|
+| 0 | 3 | 1.0% | 1.0% | 1.0% |
+| 30 | 33 | 11.4% (speed cap) | 2.0% | 5.3% |
+| 100 | 103 | 35.6% | 6.1% | 16.5% |
+| **142** | 145 | **50.1%** (rất khó) | 8.6% | 23.2% |
+| 285 | 288 | **99.7%** (board đầy) | 17.1% | 46.1% |
+| 838 | 841 | — | **50.1%** | — |
+
+| Metric | Fixed 17×17 | Expand 17→41 | Cap 25×25 |
+|---|---|---|---|
+| >50% density (rất khó) | food **#142** | food **#838** | food **#310** |
+| ~100% density (WIN) | food **#285** | food **#1670** | food **#619** |
+| Ước tính session đến ceiling | **~3.5 phút** ✅ | ~9 phút ❌ | ~4.5 phút ⚠️ |
+
+#### 3.4.3 Khuyến nghị
+
+**RECOMMENDATION: Revert territory expansion — grid cố định 17×17 (Option 3).**
+
+| Tiêu chí | Đánh giá |
+|---|---|
+| Difficulty ceiling tồn tại? | ✅ food #285 = board đầy = WIN huyền thoại |
+| Session 30s–5 phút? | ✅ Ceiling ~3.5 phút — hoàn hảo retro arcade |
+| Consistent BR-11? | ✅ Hàm tuyến tính, deterministic, không random |
+| Code change | Tối thiểu — xóa expandGrid(), đổi COLS/ROWS về const |
+
+**Lý do không chọn Option 1 (giữ + re-tune):**
+- Tốc độ đã cap ở 60ms (food #30). Không thể tăng thêm mà không phá playability.
+- Food value (điểm) không ảnh hưởng difficulty — chỉ affect score.
+- Không có thông số nào có thể "bù" cho board quá rộng. Board 41×41 = 1681 cells, snake cần 840+ food để lấp 50%. Không thể fix bằng tuning.
+
+**Lý do không chọn Option 2 (cap 25×25):**
+- Ceiling vẫn tồn tại nhưng xa (food #310, ~4.5 phút) — đẩy giới hạn arcade.
+- Expansion chỉ diễn ra 8 lần (food #0–7) rồi dừng — cảm giác "phát triển lãnh thổ" quá ngắn, không đáng complexity thêm vào.
+- Nếu đã giới hạn, cố định 17×17 đơn giản hơn và difficulty curve đẹp hơn.
+
+**Fallback nếu Sếp muốn giữ expansion:** Cap 25×25, expand mỗi 2 food (span food #0–14). Board vẫn lớn hơn gốc nhưng ceiling ~4.5 phút. Đây là compromise, không phải optimal.
+
+**BR-30 (MỚI):** Grid cố định 17×17 — không expand. Difficulty = speed (150→60ms) + board density (snake dài chiếm board). Ceiling = board đầy (food #285). Deterministic, tuyến tính, có ceiling rõ ràng.
+
 
 ## 4. Game States
 

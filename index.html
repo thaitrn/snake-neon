@@ -152,9 +152,14 @@ function initSnake() {
 }
 
 function setDirection(newDir) {
-  const compareDir = snake.nextDirection || snake.direction;
-  if (newDir.x === -compareDir.x && newDir.y === -compareDir.y) return;  // no 180° reversal
-  if (newDir.x === compareDir.x && newDir.y === compareDir.y) return;    // no-op
+  // Reject 180° reversal against BOTH the committed direction and the queue.
+  // A touch gesture can fire two perpendicular inputs within one tick; checking
+  // only the queue lets them slip past and produce a net reversal. (BUG-001)
+  const d = snake.direction;
+  if (newDir.x === -d.x && newDir.y === -d.y) return;   // vs committed
+  const q = snake.nextDirection || d;
+  if (newDir.x === -q.x && newDir.y === -q.y) return;    // vs last queued
+  if (newDir.x === q.x && newDir.y === q.y) return;      // no-op
   snake.nextDirection = newDir;
 }
 
@@ -1045,9 +1050,12 @@ function touchMoved(event) {
 
 function touchEnded(event) {
   if (touchStart && currentState !== STATES.PLAYING) {
-    // MENU / GAME_OVER / PAUSED — near-zero drag = tap = action (start/retry/resume)
-    const dx = mouseX - touchStart.x;
-    const dy = mouseY - touchStart.y;
+    // MENU / GAME_OVER / PAUSED — near-zero drag = tap = action (start/retry/resume).
+    // Use real touch coords (changedTouches) not p5 mouseX/mouseY, which are
+    // stale/0 at touchend on real mobile browsers (same root cause as tap-steer bug).
+    const pos = getEventTouchPos(event);
+    const dx = pos.x - touchStart.x;
+    const dy = pos.y - touchStart.y;
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 12) {
       handleAction();
     }

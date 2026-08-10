@@ -1,0 +1,130 @@
+{
+  "suite": "scripts/qa-regression-critical.js",
+  "task": "t_3c4e436a",
+  "ranAt": "2026-08-09T14:51:12.836Z",
+  "pass": 24,
+  "fail": 0,
+  "total": 24,
+  "results": [
+    {
+      "name": "R1a canvas element present after setup()",
+      "status": "PASS",
+      "detail": "527x527"
+    },
+    {
+      "name": "R1b canvas nonzero size (createCanvas lived)",
+      "status": "PASS",
+      "detail": "527x527"
+    },
+    {
+      "name": "R1c drawingContext.imageSmoothingEnabled readable (BUG-1)",
+      "status": "PASS",
+      "detail": "false"
+    },
+    {
+      "name": "R1d no fatal JS error during load",
+      "status": "PASS",
+      "detail": "clean"
+    },
+    {
+      "name": "R2 game loop advances (head moved)",
+      "status": "PASS",
+      "detail": "{\"x\":9,\"y\":8} → {\"x\":15,\"y\":8}"
+    },
+    {
+      "name": "R3 snake can die (collision → GAME_OVER)",
+      "status": "PASS",
+      "detail": "reached GAME_OVER"
+    },
+    {
+      "name": "R3b no JS error across full lifecycle",
+      "status": "PASS",
+      "detail": "clean"
+    },
+    {
+      "name": "R4-pre portrait orientation on touch device",
+      "status": "PASS",
+      "detail": "portrait"
+    },
+    {
+      "name": "R4 touch tap-zone UP sets direction",
+      "status": "PASS",
+      "detail": "dir={\"x\":0,\"y\":-1}"
+    },
+    {
+      "name": "R4 touch tap-zone DOWN sets direction",
+      "status": "PASS",
+      "detail": "dir={\"x\":0,\"y\":1}"
+    },
+    {
+      "name": "R4 touch tap-zone LEFT sets direction",
+      "status": "PASS",
+      "detail": "dir={\"x\":-1,\"y\":0}"
+    },
+    {
+      "name": "R4 touch tap-zone RIGHT sets direction",
+      "status": "PASS",
+      "detail": "dir={\"x\":1,\"y\":0}"
+    },
+    {
+      "name": "R5 reverse-direction guard (UP→DOWN ignored)",
+      "status": "PASS",
+      "detail": "base={\"d\":{\"x\":0,\"y\":-1},\"n\":null} afterDown={\"d\":{\"x\":0,\"y\":-1},\"n\":null}"
+    },
+    {
+      "name": "R6 touch uses DOM event coords, not stale mouseX (BUG-2)",
+      "status": "PASS",
+      "detail": "dir follows tap point"
+    },
+    {
+      "name": "R7 touch tap-to-start on MENU",
+      "status": "PASS",
+      "detail": "MENU(MENU) → PLAYING"
+    },
+    {
+      "name": "R8-pre landscape orientation on touch device",
+      "status": "PASS",
+      "detail": "landscape"
+    },
+    {
+      "name": "R8 dpad UP button exists",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "R8 dpad UP touchstart steers",
+      "status": "PASS",
+      "detail": "dir={\"x\":0,\"y\":-1}"
+    },
+    {
+      "name": "R8 dpad DOWN button exists",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "R8 dpad DOWN touchstart steers",
+      "status": "PASS",
+      "detail": "correctly rejected (180°)"
+    },
+    {
+      "name": "R8 dpad LEFT button exists",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "R8 dpad LEFT touchstart steers",
+      "status": "PASS",
+      "detail": "dir={\"x\":-1,\"y\":0}"
+    },
+    {
+      "name": "R8 dpad RIGHT button exists",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "R8 dpad RIGHT touchstart steers",
+      "status": "PASS",
+      "detail": "correctly rejected (180°)"
+    }
+  ]
+}

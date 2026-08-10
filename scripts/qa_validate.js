@@ -135,7 +135,7 @@ function pickSmokeSample() {
 }
 
 async function smokeTest(browser, id) {
-  const fileUrl = 'file://' + path.join(VARIANTS_DIR, `${id}.html`);
+  const fileUrl = 'http://127.0.0.1:8766/variants/' + `${id}.html`;
   const errors = [];
   const cfg = JSON.parse(fs.readFileSync(path.join(CONFIG_DIR, `${id}.json`), 'utf8'));
   const page = await browser.newPage();

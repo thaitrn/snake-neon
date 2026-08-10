@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-09T03:51:13.520Z",
+  "generated_at": "2026-08-09T07:22:55.311Z",
   "layerA": {
     "total": 100,
     "passed": 100,
@@ -32,7 +32,10 @@
         "canEat": true,
         "wallCollisionGameOver": true
       },
-      "errors": [],
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)",
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+      ],
       "bodyLenAfterEat": 4,
       "finalScore": 0,
       "finalState": "GAME_OVER"
@@ -52,7 +55,9 @@
         "wrapSurvivedEdge": true,
         "wrapNote": "state after=PLAYING"
       },
-      "errors": [],
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+      ],
       "bodyLenAfterEat": 4,
       "finalScore": 0,
       "finalState": "PLAYING"
@@ -71,7 +76,9 @@
         "canEat": true,
         "wallCollisionGameOver": true
       },
-      "errors": [],
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+      ],
       "bodyLenAfterEat": 4,
       "finalScore": 0,
       "finalState": "GAME_OVER"
@@ -91,7 +98,9 @@
         "wrapSurvivedEdge": true,
         "wrapNote": "state after=PLAYING"
       },
-      "errors": [],
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+      ],
       "bodyLenAfterEat": 4,
       "finalScore": 0,
       "finalState": "PLAYING"
@@ -110,7 +119,9 @@
         "canEat": true,
         "wallCollisionGameOver": true
       },
-      "errors": [],
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+      ],
       "bodyLenAfterEat": 4,
       "finalScore": 0,
       "finalState": "GAME_OVER"
@@ -130,7 +141,9 @@
         "wrapSurvivedEdge": true,
         "wrapNote": "state after=PLAYING"
       },
-      "errors": [],
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+      ],
       "bodyLenAfterEat": 4,
       "finalScore": 0,
       "finalState": "PLAYING"
@@ -149,7 +162,9 @@
         "canEat": true,
         "wallCollisionGameOver": true
       },
-      "errors": [],
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+      ],
       "bodyLenAfterEat": 4,
       "finalScore": 0,
       "finalState": "GAME_OVER"
@@ -169,7 +184,9 @@
         "wrapSurvivedEdge": true,
         "wrapNote": "state after=PLAYING"
       },
-      "errors": [],
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+      ],
       "bodyLenAfterEat": 4,
       "finalScore": 0,
       "finalState": "PLAYING"
@@ -188,7 +205,9 @@
         "canEat": true,
         "wallCollisionGameOver": true
       },
-      "errors": [],
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+      ],
       "bodyLenAfterEat": 4,
       "finalScore": 0,
       "finalState": "GAME_OVER"
@@ -208,7 +227,9 @@
         "wrapSurvivedEdge": true,
         "wrapNote": "state after=PLAYING"
       },
-      "errors": [],
+      "errors": [
+        "console: Failed to load resource: the server responded with a status of 404 (File not found)"
+      ],
       "bodyLenAfterEat": 4,
       "finalScore": 0,
       "finalState": "PLAYING"

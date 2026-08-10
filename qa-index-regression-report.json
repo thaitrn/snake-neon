@@ -1,0 +1,71 @@
+{
+  "test": "index.html regression",
+  "task": "t_e993c8dd",
+  "timestamp": "2026-08-09T07:21:52.486Z",
+  "file": "http://127.0.0.1:8766/index.html",
+  "total": 12,
+  "passed": 12,
+  "failed": 0,
+  "results": [
+    {
+      "name": "TC1.1 No JS console error on load",
+      "status": "PASS",
+      "detail": "0 console errors"
+    },
+    {
+      "name": "TC2.1 Canvas element exists",
+      "status": "PASS",
+      "detail": "578x578"
+    },
+    {
+      "name": "TC2.2 Canvas has rendered content (pixels)",
+      "status": "PASS",
+      "detail": "30047 non-background pixels"
+    },
+    {
+      "name": "TC3.1 Initial state is MENU",
+      "status": "PASS",
+      "detail": "currentState = MENU"
+    },
+    {
+      "name": "TC3.2 State transitions to PLAYING after start",
+      "status": "PASS",
+      "detail": "currentState = PLAYING"
+    },
+    {
+      "name": "TC4.0 Head position readable",
+      "status": "PASS",
+      "detail": "head = (9,8) → (12,8)"
+    },
+    {
+      "name": "TC4.1 Snake moving RIGHT initially (head.x increases)",
+      "status": "PASS",
+      "detail": "delta = (3,0)"
+    },
+    {
+      "name": "TC4.2 DOWN arrow → head.y increases (head position delta)",
+      "status": "PASS",
+      "detail": "delta = (x:0, y:3) — expected y > 0"
+    },
+    {
+      "name": "TC4.3 Head actually moved (behavior verified, not just var)",
+      "status": "PASS",
+      "detail": "total displacement = 3 cells"
+    },
+    {
+      "name": "TC4.4 LEFT arrow → head.x decreases (head position delta)",
+      "status": "PASS",
+      "detail": "delta = (x:-4, y:0) — expected x < 0"
+    },
+    {
+      "name": "TC5.1 Game state accessible (score, food, snake)",
+      "status": "PASS",
+      "detail": "score=0, food=(5,14), head=(8,11)"
+    },
+    {
+      "name": "TC6.1 Wall collision → state transitions to GAME_OVER",
+      "status": "PASS",
+      "detail": "hit wall after 7 LEFT presses"
+    }
+  ]
+}
