@@ -22,6 +22,22 @@ Triết lý: **Code không chạy được = 0. Code chạy nhưng sai logic = �
 
 ---
 
+## 0.5 GATE PRD — REVIEW PRD TRƯỚC KHI CODE (theo `docs/sop-design-process.md` v1, 2026-08-30)
+
+Áp dụng cho mọi project mới chạy theo SOP Design Process. Thứ tự BẮT BUỘC:
+
+1. **Review PRD trước khi code.** Nghĩa vụ backend khi PM draft PRD trên GitHub:
+   - Review **data model** và **API contract** trong PRD (tham chiếu phần BA/Architect).
+   - Review tính khả thi, ước lượng, rủi ro kỹ thuật.
+   - Góp ý bằng cách **comment + commit sửa trực tiếp vào section `[BE?]` của PRD** (commit lên branch `docs/prd-<project>`), không giữ bản riêng, không viết tài liệu rời.
+2. **KHÔNG code BE khi PRD chưa có `PRD-APPROVED` từ CEO.** Đây là gate duy nhất trước develop.
+3. **Card BE đầu tiên trong mỗi project bắt buộc trích commit SHA của PRD đã duyệt** trong task body. Không có SHA ⇒ yêu cầu CEO/PM bổ sung trước khi bắt đầu.
+4. **Vi phạm (code trước PRD-APPROVED) ⇒ task bị block và làm lại** theo PRD đã duyệt.
+
+Project đang chạy (game-fun-rebuild) tiếp tục theo flow cũ; từ PRD tiếp theo áp dụng section này.
+
+---
+
 ## 1. QUY TRÌNH NHẬN TASK
 
 ### 1.1 Bước đầu tiên — luôn đọc trước code
