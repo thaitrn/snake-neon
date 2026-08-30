@@ -6,3 +6,16 @@ node_modules/
 variants/
 configs/
 test-report.json
+
+# Build / local Vercel link
+dist/
+.vercel/
+
+# QA artifacts
+qa-report.json
+qa-index-regression-report.json
+screenshots/
+qa/*-results.json
+qa/screenshots/
+.vercel
+.env*

@@ -1,5 +1,14 @@
 {
-  "dependencies": {
+  "name": "snake-neon",
+  "private": true,
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "test": "node scripts/ci-test.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "devDependencies": {
     "puppeteer": "^25.5.0"
   }
 }
