@@ -1,7 +1,7 @@
 # SOP — Phòng QA (Quality Assurance)
 
 > Owner: QA. Tự định nghĩa, tự áp dụng, tự cải thiện.
-> Phiên bản: 1.0 — 2026-08-09
+> Phiên bản: 1.1 — 2026-08-30 (thêm gate PRD-APPROVED theo `docs/sop-design-process.md` v1)
 > Nền tảng: thực chiến Snake Neon (5 commit, 2 bug miss, 1 post-mortem, 100 variants tested).
 > Tham chiếu: `docs/qa-process-review.md`, `docs/qa-smoke-checklist.md`, `docs/escalation-protocol.md`, `docs/bug-180-reverse.md`.
 
@@ -18,6 +18,43 @@ Triết lý cốt lõi (học từ post-mortem `qa-process-review.md`):
 - **QA accountable cho bug miss.** Không đổ cho dev, không đổ cho hạ tầng. Sai thì nhận, sửa process.
 
 Mọi quyết định trong SOP này đều bắt nguồn từ chỗ này.
+
+---
+
+## 0.5. THAM GIA TU KHÂU PRD — GATE TRƯỚC CODE (theo `docs/sop-design-process.md` v1)
+
+Từ 2026-08-30, QA không chỉ nhận task khi có code. QA tham gia **từ khâu PRD**:
+
+### 0.5.1 Trách nhiệm trong PRD
+
+- Khi PM đánh marker `[QA?]` trên PRD (branch `docs/prd-<project>`), QA phải
+  commit **test plan + acceptance mapping** trực tiếp vào PRD **trước khi có
+  code** — không viết tài liệu rời (nguyên tắc "một nguồn sự thật" của SOP
+  design-process).
+- Test plan trong PRD gồm: xác định **khổ test** dự kiến theo layer model
+  (§2), checklist assertion đo behavior (§3.2), và mapping từng acceptance
+  criterion → test case tương ứng (kể cả manual gate device thật nếu là
+  input/controls).
+
+### 0.5.2 Test plan là một phần của PRD-APPROVED gate
+
+- **PRD không có test plan của QA ⇒ chưa đủ điều kiện CEO approve.**
+  Đây là điều kiện bắt buộc ngang hàng với đầy đủ acceptance criteria định
+  lượng — không phải "nice to have".
+- Nếu acceptance criteria trong PRD đo biến thay vì behavior (RC5 trong
+  post-mortem), QA phải phản hồi **trong PRD** ở bước này, không đợi đến khi
+  có code mới chặn (khớp §1 Bước 4).
+
+### 0.5.3 Sau khi PRD-APPROVED
+
+- CEO `PRD-APPROVED` là gate duy nhất trước develop. Không có PRD-APPROVED
+  thì **không có task FE/BE nào**, do đó cũng **không có task QA test nào** —
+  QA từ chối test code sinh ra trước gate này (vi phạm ⇒ task bị block và
+  làm lại theo PRD).
+- Card FE/BE đầu tiên phải trích commit SHA của PRD đã duyệt; QA kiểm tra
+  SHA này khi nhận task — thiếu SHA ⇒ comment + block, không test.
+- Sau approve, QA kiểm thu **độc lập** theo đúng acceptance đã ghi trong PRD
+  (flow §3-§6 không đổi). **GameHub publish chỉ sau QA-PASS.**
 
 ---
 
