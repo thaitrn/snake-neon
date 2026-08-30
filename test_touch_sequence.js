@@ -24,7 +24,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     await page.touchscreen.touchStart(tx, ty);
     await sleep(15);
     const n = await page.evaluate(() => {
-      const d = snake.nextDirection || snake.direction;
+      const q = snake.dirQueue;
+      const d = q.length > 0 ? q[q.length - 1] : snake.direction;
       return { x: d.x, y: d.y };
     });
     await page.touchscreen.touchEnd();

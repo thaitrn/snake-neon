@@ -48,3 +48,12 @@ CEO accountable cho việc điều phối đúng người, đúng thời gian.
 | Architect | Thiết kế kỹ thuật | |
 | Frontend/Backend | Implement | |
 | QA | Test, bug report, verify fix | Báo bug thẳng cho sếp mà không qua CEO |
+
+## 6. Notification Protocol (auto-report vào group)
+Mỗi task tạo mới PHẢI subscribe notify vào đúng topic phòng ban:
+```
+hermes kanban notify-subscribe <task_id> --platform telegram --chat-id -1004232878770 --thread-id <topic_id>
+```
+Topic map: 3=General, 4=CEO, 5=PM, 6=BA, 7=Architect, 8=Frontend, 9=Backend, 10=QA
+
+→ Task events (claimed/spawned/heartbeat/completed/blocked) tự push vào topic → sếp thấy realtime.

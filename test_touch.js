@@ -27,7 +27,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   const getDir = () => page.evaluate(() => {
     const d = snake.direction;
-    const n = snake.nextDirection || snake.direction;
+    const q = snake.dirQueue;
+    const n = q.length > 0 ? q[q.length - 1] : snake.direction;
     return { dx: d.x, dy: d.y, ndx: n.x, ndy: n.y };
   });
   const getState = () => page.evaluate(() => currentState);

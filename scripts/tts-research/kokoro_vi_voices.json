@@ -1,0 +1,58 @@
+{
+  "diem_trinh": {
+    "label": "Diễm Trinh",
+    "filename": "voicepacks/diem_trinh.pt"
+  },
+  "hung_thinh": {
+    "label": "Hưng Thịnh",
+    "filename": "voicepacks/hung_thinh.pt"
+  },
+  "mai_linh": {
+    "label": "Mai Linh",
+    "filename": "voicepacks/mai_linh.pt"
+  },
+  "mai_loan": {
+    "label": "Mai Loan",
+    "filename": "voicepacks/mai_loan.pt"
+  },
+  "manh_dung": {
+    "label": "Mạnh Dũng",
+    "filename": "voicepacks/manh_dung.pt"
+  },
+  "my_yen": {
+    "label": "Mỹ Yến",
+    "filename": "voicepacks/my_yen.pt"
+  },
+  "ngoc_huyen": {
+    "label": "Ngọc Huyền",
+    "filename": "voicepacks/ngoc_huyen.pt"
+  },
+  "phat_tai": {
+    "label": "Phát Tài",
+    "filename": "voicepacks/phat_tai.pt"
+  },
+  "thanh_dat": {
+    "label": "Thành Đạt",
+    "filename": "voicepacks/thanh_dat.pt"
+  },
+  "thuc_trinh": {
+    "label": "Thục Trinh",
+    "filename": "voicepacks/thuc_trinh.pt"
+  },
+  "tuan_ngoc": {
+    "label": "Tuấn Ngọc",
+    "filename": "voicepacks/tuan_ngoc.pt"
+  },
+  "storyvert": {
+    "label": "storyvert",
+    "filename": "voicepacks/storyvert.pt"
+  },
+  "duc_an": {
+    "label": "Đức An",
+    "filename": "voicepacks/duc_an.pt"
+  },
+  "duc_duy": {
+    "label": "đức duy",
+    "filename": "voicepacks/duc_duy.pt"
+  }
+}

@@ -92,6 +92,9 @@ const START_LENGTH = 3;
 const START_X = Math.floor(INITIAL_COLS / 2), START_Y = Math.floor(INITIAL_ROWS / 2);
 const INITIAL_TICK = 150, MIN_TICK = 60, STEP_REDUCTION = 3;
 const BASE_POINTS = 10;
+// Direction input buffer — FIFO queue so rapid taps within one tick are not lost.
+// Replaces the old single-slot nextDirection. (Task t_9bb772ba — tap control fix)
+const MAX_DIR_QUEUE = 3;
 
 // Floating Virtual Joystick — swipe-fallback only (portrait). V2 primary control is tap zone.
 // Landscape uses D-pad buttons. Ratios are relative to cellSize (responsive).
@@ -143,7 +146,7 @@ const DIR = {
 let snake;
 
 function initSnake() {
-  snake = { body: [], direction: DIR.RIGHT, nextDirection: null, prevBody: [] };
+  snake = { body: [], direction: DIR.RIGHT, dirQueue: [], prevBody: [] };
   for (let i = 0; i < START_LENGTH; i++) {
     const seg = { x: START_X - i, y: START_Y };
     snake.body.push(seg);
@@ -152,15 +155,18 @@ function initSnake() {
 }
 
 function setDirection(newDir) {
-  // Reject 180° reversal against BOTH the committed direction and the queue.
-  // A touch gesture can fire two perpendicular inputs within one tick; checking
-  // only the queue lets them slip past and produce a net reversal. (BUG-001)
-  const d = snake.direction;
-  if (newDir.x === -d.x && newDir.y === -d.y) return;   // vs committed
-  const q = snake.nextDirection || d;
-  if (newDir.x === -q.x && newDir.y === -q.y) return;    // vs last queued
-  if (newDir.x === q.x && newDir.y === q.y) return;      // no-op
-  snake.nextDirection = newDir;
+  // Input buffering: enqueue instead of overwrite so two rapid taps within one
+  // tick are both honoured (each applied on its own tick). (Task t_9bb772ba)
+  // Reject 180° reversal against the LAST queued direction (or committed if
+  // queue empty) — a touch gesture can fire two perpendicular inputs within one
+  // tick; checking only the committed direction lets them slip past and produce
+  // a net reversal. (BUG-001)
+  const last = snake.dirQueue.length > 0
+    ? snake.dirQueue[snake.dirQueue.length - 1]
+    : snake.direction;
+  if (newDir.x === -last.x && newDir.y === -last.y) return;  // no 180° reversal
+  if (newDir.x ===  last.x && newDir.y ===  last.y) return;  // no-op (same dir)
+  if (snake.dirQueue.length < MAX_DIR_QUEUE) snake.dirQueue.push(newDir);
 }
 
 // FOOD
@@ -198,9 +204,8 @@ function snakeTick() {
   // Save prev positions for interpolation
   snake.prevBody = snake.body.map(s => ({ x: s.x, y: s.y }));
 
-  if (snake.nextDirection) {
-    snake.direction = snake.nextDirection;
-    snake.nextDirection = null;
+  if (snake.dirQueue.length > 0) {
+    snake.direction = snake.dirQueue.shift();   // dequeue 1 direction per tick
   }
 
   const head = snake.body[0];
