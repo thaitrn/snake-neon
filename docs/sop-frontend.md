@@ -19,9 +19,37 @@ Mọi mục dưới đây phục vụ 2 luật này.
 
 ---
 
+## 0.5. Gate PRD — review trước khi code (khớp `docs/sop-design-process.md`)
+
+Nguồn: Design Process SOP CEO-approved (v1, 2026-08-30). Artifact trước, code sau. Áp dụng từ PRD tiếp theo (project đang chạy như game-fun-rebuild giữ flow cũ đến hết).
+
+### 0.5.1. Nghĩa vụ review PRD (trước mọi dòng code)
+
+Khi PM đánh dấu `[FE?]` trên PRD GitHub (`docs/`, branch `docs/prd-<project>` hoặc `main` nếu repo mới), FE **đóng góp vào cùng PRD**, không giữ bản riêng:
+
+- Review **tính khả thi** UI/canvas/input/responsive so với Design Artifact trong PRD.
+- **Ước lượng** effort theo layer (logic / rendering / input / layout).
+- Ghi **rủi ro kỹ thuật** (touch vs headless, viewport, perf canvas, file monolith, v.v.).
+- **Comment + commit sửa** thẳng vào section `[FE?]` của PRD. Xóa/`[FE]` khi đã đóng góp xong — không để marker `?` treo.
+- QA viết test plan trên PRD trước khi có code; FE không bắt đầu implement trong lúc PRD còn `[?]`.
+
+### 0.5.2. Không nhận task FE khi chưa `PRD-APPROVED`
+
+- CEO là gate duy nhất trước develop. **Không có `PRD-APPROVED` ⇒ không nhận / không implement** kanban task FE nào (kể cả “spike nhỏ”).
+- Card FE **đầu tiên** của mỗi project **bắt buộc trích commit SHA** của PRD đã duyệt (trong body hoặc metadata). Thiếu SHA → `kanban_comment` + `kanban_block(kind="needs_input")`, không đoán PRD.
+- **Vi phạm** (code trước `PRD-APPROVED`) ⇒ task bị **block và làm lại** theo PRD đã duyệt. Không merge, không coi là done.
+
+### 0.5.3. Thứ tự bắt buộc khi nhận card FE mới
+
+1. Xác nhận PRD có `PRD-APPROVED` + SHA trên GitHub.
+2. Đọc PRD (MoSCoW, MVP, acceptance định lượng, FUN-GATE, Decision Log) — parent handoff không thay PRD.
+3. Chỉ khi gate pass mới sang mục 1 (đọc task / khảo sát code).
+
+---
+
 ## 1. Quy trình nhận task
 
-Khi `kanban_show` trả về task, làm theo thứ tự KHÔNG bỏ qua:
+Khi `kanban_show` trả về task, làm theo thứ tự KHÔNG bỏ qua. **Nếu card thuộc project áp dụng SOP design mới: hoàn tất mục 0.5 trước.** Không skip gate để “code cho nhanh”.
 
 ### 1.1. Đọc kỹ 3 thứ
 - **Body task** — WHAT + WHY + CONSTRAINTS. Sếp/CEO giao WHAT, không giao HOW.
@@ -189,6 +217,7 @@ docs: <documentation>
 Không commit/push trừ khi task yêu cầu (Sếp quyết khi merge).
 
 **Tham chiếu spec:**
+- `docs/sop-design-process.md` — gate PRD-APPROVED trước develop (CEO)
 - `docs/architecture.md` — tech design
 - `docs/mechanics.md` — game rules (§X.Y comment trong code)
 - `docs/user-stories.md` — acceptance criteria
